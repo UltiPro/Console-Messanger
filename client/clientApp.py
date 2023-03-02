@@ -12,7 +12,7 @@ class ClientConsoleMessanger():
     def start(self):
         print("Connecting to server...")
         self.__client.connect((self.__server_address, self.__server_port))
-        self.__client.send(self.__nickname.encode("ascii"))
+        self.__client.send(self.__nickname.encode("utf-8"))
 
         recive_Theard = threading.Thread(target=self._recive)
         recive_Theard.start()
@@ -23,29 +23,23 @@ class ClientConsoleMessanger():
     def _recive(self):
         while True:
             try:
-                message = self.__client.recv(1024).decode("ascii")
+                message = self.__client.recv(1024).decode("utf-8")
                 print(message)
             except ConnectionError:
                 print("Connection error. Stopping client...")
-            # except:
-            #    print("An error occured! Stopping client...")
-            finally:
                 self.__client.close()
                 break
 
     def _write(self):
-        message = "<{}>: ".format(self.__nickname)
         while True:
             try:
-                message += "{}".format(input(""))
-                self.__client.send(message.encode("ascii"))
+                message = "<{}>: {}".format(self.__nickname, input())
+                self.__client.send(message.encode("utf-8"))
             except ConnectionError:
                 print("Connection error. Stopping client...")
-            # except:
-            #    print("An error occured! Stopping client...")
-            finally:
                 self.__client.close()
                 break
-
-
-# zmienna do sterowania 2 pętlami na raz w konstr
+            except EOFError:
+                print("Ctrl + C -> Stopping client...")
+                self.__client.close()
+                break

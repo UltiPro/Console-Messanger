@@ -1,2 +1,2 @@
-# Console-Messanger
-Console Messanger created by Patryk 'UltiPro' Wójtowicz using Python and RSA encryption.
+# Console-Messenger
+Console Messenger created by Patryk 'UltiPro' Wójtowicz using Python and RSA encryption.
