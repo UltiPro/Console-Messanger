@@ -1,6 +1,8 @@
 import socket
 import threading
 
+from infrastructure.rsaImplementation import RSAImplementation
+
 
 class ServerConsoleMessanger():
     def __init__(self, ip_address="127.0.0.1", port=50500):
@@ -8,6 +10,7 @@ class ServerConsoleMessanger():
         self.__port = port
         self.__clients_list = []
         self.__usernames_list = []
+        self.__code_list = []
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__runningServer = True
 
@@ -40,6 +43,10 @@ class ServerConsoleMessanger():
             client, address = self.__server.accept()
             print("Connected from {}".format(address))
             nickname = client.recv(1024).decode("utf-8")
+
+            self.__code_list.append(client.recv(1024).decode("utf-8"))
+            print(self.__code_list)
+
             self.__usernames_list.append(nickname)
             self.__clients_list.append(client)
             self._broadcast("User {} has join the chat!".format(
@@ -47,3 +54,8 @@ class ServerConsoleMessanger():
             handle_user_theard = threading.Thread(
                 target=self._handleUser, args=(client, ))
             handle_user_theard.start()
+
+
+server = ServerConsoleMessanger()
+
+server.start()

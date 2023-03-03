@@ -1,6 +1,8 @@
 import socket
 import threading
 
+from infrastructure.rsaImplementation import RSAImplementation
+
 
 class ClientConsoleMessanger():
     def __init__(self, server_address="127.0.0.1", server_port=50500, nickname="Undefined"):
@@ -8,11 +10,13 @@ class ClientConsoleMessanger():
         self.__server_port = server_port
         self.__nickname = nickname
         self.__client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.__rsa_client = RSAImplementation()
 
     def start(self):
         print("Connecting to server...")
         self.__client.connect((self.__server_address, self.__server_port))
         self.__client.send(self.__nickname.encode("utf-8"))
+        self.__client.send(str(self.__rsa_client.public_key()).encode("utf-8"))
 
         recive_Theard = threading.Thread(target=self._recive)
         recive_Theard.start()
@@ -23,7 +27,8 @@ class ClientConsoleMessanger():
     def _recive(self):
         while True:
             try:
-                message = self.__client.recv(1024).decode("utf-8")
+                message = self.__rsa_client.decrypt_msg(
+                    self.__client.recv(1024).decode("utf-8"))
                 print(message)
             except ConnectionError:
                 print("Connection error. Stopping client...")
@@ -43,3 +48,8 @@ class ClientConsoleMessanger():
                 print("Ctrl + C -> Stopping client...")
                 self.__client.close()
                 break
+
+
+client = ClientConsoleMessanger()
+
+client.start()
