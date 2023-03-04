@@ -36,7 +36,7 @@ class RSAImplementation():
                 d = i
                 break
         return d
-    
+
     def public_key(self):
         return self._e, self._n
 
@@ -45,33 +45,30 @@ class RSAImplementation():
         return c
 
     def _decrypt_char(self, char):
-        p = pow(char, self._d) % self._n
-        return p
+        p = pow(int(char), self._d) % self._n
+        return chr(p)
 
     def encrypt_msg(self, msg):
-        new_msg = []
+        return_msg = ""
         for e in msg:
-            new_msg.append(self._encrypt_char(e))
-        return new_msg
+            return_msg += "{}%$%".format(self._encrypt_char(e))
+        return return_msg
 
-    def decrypt_msg(self, msg_arr):
-        new_msg = ''
-        for e in msg_arr:
-            new_msg += chr(self._decrypt_char(e))
-        return new_msg
+    def decrypt_msg(self, msg):
+        return_msg = ''
+        for e in msg.split("%$%")[0:-1]:
+            return_msg += self._decrypt_char(e)
+        return return_msg
 
-    # @staticmethod
-    # def encrypt_msg_outer(msg, ):
+    @staticmethod
+    def encrypt_char_default(char, e, n):
+        c = pow(ord(char), e) % n
+        return c
 
-
-# rsaImplementation = RSAImplementation()
-
-# msg = "lol"
-
-# encrypted_message = rsaImplementation.encrypt_msg(msg)
-
-# print(encrypted_message)
-
-# decrypted_message = rsaImplementation.decrypt_msg(encrypted_message)
-
-# print(decrypted_message)
+    @staticmethod
+    def encrypt_msg_default(msg, e, n):
+        return_msg = ""
+        for elem in msg:
+            return_msg += "{}%$%".format(
+                RSAImplementation.encrypt_char_default(elem, e, n))
+        return return_msg
