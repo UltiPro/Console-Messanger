@@ -9,8 +9,8 @@ class RSAImplementation():
         self._d = self._generate_d()
 
     def _generate_n_phi(self):
-        numbers = [i for i in range(2, 101)]
-        for i in range(2, 101):
+        numbers = [i for i in range(11, 101)]
+        for i in range(11, 101):
             for j in range(2, math.ceil(i/2)+1):
                 if i % j == 0:
                     numbers.remove(i)
@@ -41,7 +41,9 @@ class RSAImplementation():
         return self._e, self._n
 
     def _encrypt_char(self, char):
-        c = pow(ord(char), self._e) % self._n
+        if type(char) == str:
+            char = ord(char)
+        c = pow(char, self._e) % self._n
         return c
 
     def _decrypt_char(self, char):
@@ -62,7 +64,9 @@ class RSAImplementation():
 
     @staticmethod
     def encrypt_char_default(char, e, n):
-        c = pow(ord(char), e) % n
+        if type(char) == str:
+            char = ord(char)
+        c = pow(char, e) % n
         return c
 
     @staticmethod
