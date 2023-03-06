@@ -1,9 +1,10 @@
 import os
 from colorama import init, Fore, Style
+from sys import stdout
 
 
 class ConsoleMessanger():
-    def __init__():
+    def __init__(self):
         init(convert=True)
 
     def _print_system_comunication(self, message):

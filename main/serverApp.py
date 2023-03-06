@@ -8,7 +8,7 @@ from rsa.rsaImplementation import RSAImplementation
 class ServerConsoleMessanger(ConsoleMessanger):
     def __init__(self, ip_address="127.0.0.1", port=50500):
         self.__ip_address = ip_address
-        self.__port = port
+        self.__port = int(port)
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__rsa_client = RSAImplementation()
         self.__clients_list = []
@@ -19,6 +19,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self.__running = True
 
     def start(self):
+        self._console_clear()
         try:
             self.__server.bind((self.__ip_address, self.__port))
             self.__server.listen()
@@ -72,7 +73,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 handle_user_theard.start()
             except ValueError:
                 if client and address:
-                    print("Incorrect data from {}, client data {}".format(
+                    self._print_system_comunication("Incorrect data from {}, client data {}".format(
                         address, client))
                 else:
                     break
@@ -102,7 +103,6 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 continue
             e, n = self.__users_codes_list[idx]
             try:
-                print(message)
                 client.send(RSAImplementation.encrypt_msg_default(
                     message, e, n).encode("utf-8"))
                 idx += 1

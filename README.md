@@ -53,13 +53,13 @@ The project uses:
 
 ##### Server
 
-![Console server usage]()
+![Console server usage](/screenshots/server.png)
 
 ##### Client 1
 
-![Console user1 usage]()
+![Console user1 usage](/screenshots/chat%201.png)
 
 ##### Client 2
 
-![Console user2 usage]()
+![Console user2 usage](/screenshots/chat%202.png)
 
