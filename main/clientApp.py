@@ -15,8 +15,8 @@ class ClientConsoleMessanger():
         self.__rsa_client = RSAImplementation()
         self.__server_public_key_e = None
         self.__server_public_key_n = None
-        self.__recive_Theard = None
-        self.__write_Theard = None
+        self.__recive_theard = None
+        self.__write_theard = None
         self.__running = True
         init(convert=True)
 
@@ -38,27 +38,27 @@ class ClientConsoleMessanger():
                 "Could not resolve server. Stopping client...")
             return
 
-        self.__recive_Theard = StoppableThread(target=self._recive)
-        self.__recive_Theard.start()
+        self.__recive_theard = StoppableThread(target=self._recive)
+        self.__recive_theard.start()
 
-        self.__write_Theard = StoppableThread(target=self._write)
-        self.__write_Theard.start()
+        self.__write_theard = StoppableThread(target=self._write)
+        self.__write_theard.start()
 
     def _recive(self):
         while self.__running:
             try:
                 message = self.__rsa_client.decrypt_msg(
                     self.__client.recv(1024).decode("utf-8"))
-                if message.startswith("Info: "):
-                    self._print_system_comunication(message)
-                else:
-                    print(message)
             except (ConnectionError, ConnectionResetError):
-                if not self.__recive_Theard.stopped():
+                if not self.__recive_theard.stopped():
                     self._print_system_error(
                         "Connection error. Press any button to stop client...")
                     self.__running = False
                 break
+            if message.startswith("Info: "):
+                self._print_system_comunication(message)
+            else:
+                print(message)
 
     def _write(self):
         while self.__running:
@@ -73,7 +73,7 @@ class ClientConsoleMessanger():
                 self.__client.send(RSAImplementation.encrypt_msg_default(
                     message, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
             except (ConnectionError, ConnectionResetError):
-                if not self.__write_Theard.stopped():
+                if not self.__write_theard.stopped():
                     self._print_system_error(
                         "Connection to server terminated. Press any button to stop client...")
                     self.__running = False
@@ -94,8 +94,8 @@ class ClientConsoleMessanger():
                 self._print_system_error("Unknown command. Try again.")
 
     def _stop(self):
-        self.__recive_Theard.stop()
-        self.__write_Theard.stop()
+        self.__recive_theard.stop()
+        self.__write_theard.stop()
         self.__client.close()
         exit(0)
 
