@@ -9,6 +9,9 @@ class RSAImplementation():
         self._d = self._generate_d()
 
     def _generate_n_phi(self):
+        """
+        Returns randomly primary numbers to generate RSA implementation.
+        """
         numbers = [i for i in range(11, 101)]
         for i in range(11, 101):
             for j in range(2, math.ceil(i/2)+1):

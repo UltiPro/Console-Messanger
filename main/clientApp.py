@@ -7,7 +7,6 @@ from rsa.rsaImplementation import RSAImplementation
 
 class ClientConsoleMessanger(ConsoleMessanger):
     def __init__(self, nickname="Undefined", server_address="127.0.0.1", server_port=50500):
-        super()
         self.__server_address = server_address
         self.__server_port = server_port
         self.__nickname = nickname
@@ -36,7 +35,10 @@ class ClientConsoleMessanger(ConsoleMessanger):
             self._print_system_error(
                 "Could not resolve server. Stopping client...")
             return
-
+        except ValueError:
+            self._print_system_error(
+                "This nickname is already used. Choose another one.")
+            return
         self.__recive_theard = StoppableThread(target=self._recive)
         self.__recive_theard.start()
 
@@ -89,6 +91,12 @@ class ClientConsoleMessanger(ConsoleMessanger):
             case "/client-clear":
                 self._console_clear()
                 self._print_system_info("Console cleared...")
+            case "/help":
+                self._print_system_comunication("/client-stop -> close server")
+                self._print_system_comunication(
+                    "/client-clear -> clear console")
+                self._print_system_comunication(
+                    "/help -> print commands informations")
             case _:
                 self._print_system_error("Unknown command. Try again.")
 
