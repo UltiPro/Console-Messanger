@@ -1,12 +1,13 @@
 import socket
-from colorama import init, Fore, Style
 
+from main.app import ConsoleMessanger
 from thread.stoppableThread import StoppableThread
 from rsa.rsaImplementation import RSAImplementation
 
 
-class ServerConsoleMessanger():
+class ServerConsoleMessanger(ConsoleMessanger):
     def __init__(self, ip_address="127.0.0.1", port=50500):
+        super()
         self.__ip_address = ip_address
         self.__port = port
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,7 +18,6 @@ class ServerConsoleMessanger():
         self.__user_theards_list = []
         self.__recive_theard = None
         self.__running = True  # ?
-        init(convert=True)
 
     def start(self):
         try:
@@ -29,7 +29,7 @@ class ServerConsoleMessanger():
             return
         self.__recive_theard = StoppableThread(target=self._recive)
         self.__recive_theard.start()
-        while True:  # TRY ? ###
+        while self.__running:  # TRY ? ###
             cmd = input("Stop server? Type: /stop\n")
             if cmd == "/stop":
                 self.__running = False  # ?
@@ -37,14 +37,16 @@ class ServerConsoleMessanger():
                 for client in self.__clients_list:
                     self._close_connection(client)
                 self._print_system_info("Stopping server...")
-                exit(0)
+                self.__server.close()
+                break
             else:
                 self._print_system_error("Unknown command. Try again.")
+        exit(0)
 
     def _recive(self):
         e, n = self.__rsa_client.public_key()
         while self.__running:  # ?
-            try:  # ?
+            try:
                 client, address = self.__server.accept()
                 init_data = client.recv(1024).decode("utf-8").split("$$$$")
                 client.send("{}$$$${}".format(
@@ -59,14 +61,16 @@ class ServerConsoleMessanger():
                     init_data[0]), client)
                 handle_user_theard = StoppableThread(
                     target=self._handleUser, args=(client, ))
-                handle_user_theard.start()
                 self.__user_theards_list.append(handle_user_theard)
+                handle_user_theard.start()
             except ValueError:
                 print("Incorrect data from {}, client data {}".format(
                     address, client))
+            except OSError:
+                self._close_connection(client)
 
     def _handleUser(self, client):
-        while self.__running:
+        while self.__running:  # ?
             try:
                 message = self.__rsa_client.decrypt_msg(
                     client.recv(1024).decode("utf-8"))
@@ -84,10 +88,12 @@ class ServerConsoleMessanger():
             if client is skip_client:
                 continue
             e, n = self.__users_codes_list[idx]
-            ### TRY EXCEPT ###
-            client.send(RSAImplementation.encrypt_msg_default(
-                message, e, n).encode("utf-8"))
-            idx += 1
+            try:
+                client.send(RSAImplementation.encrypt_msg_default(
+                    message, e, n).encode("utf-8"))
+                idx += 1
+            except (ConnectionAbortedError, ConnectionResetError, ConnectionError):
+                continue
 
     def _close_connection(self, client):
         index_of_client = self.__clients_list.index(client)
@@ -104,9 +110,3 @@ class ServerConsoleMessanger():
         self.__clients_list.remove(client)
         client.close()
         theard.stop()
-
-    def _print_system_info(self, message):
-        print(Fore.GREEN + "{}".format(message) + Style.RESET_ALL)
-
-    def _print_system_error(self, message):
-        print(Fore.RED + "{}".format(message) + Style.RESET_ALL)

@@ -1,13 +1,13 @@
 import socket
-import os
-from colorama import init, Fore, Style
 
+from main.app import ConsoleMessanger
 from thread.stoppableThread import StoppableThread
 from rsa.rsaImplementation import RSAImplementation
 
 
-class ClientConsoleMessanger():
+class ClientConsoleMessanger(ConsoleMessanger):
     def __init__(self, nickname="Undefined", server_address="127.0.0.1", server_port=50500):
+        super()
         self.__server_address = server_address
         self.__server_port = server_port
         self.__nickname = nickname
@@ -18,7 +18,6 @@ class ClientConsoleMessanger():
         self.__recive_theard = None
         self.__write_theard = None
         self.__running = True
-        init(convert=True)
 
     def start(self):
         self._console_clear()
@@ -98,15 +97,3 @@ class ClientConsoleMessanger():
         self.__write_theard.stop()
         self.__client.close()
         exit(0)
-
-    def _print_system_comunication(self, message):
-        print(Fore.YELLOW + "{}".format(message) + Style.RESET_ALL)
-
-    def _print_system_info(self, message):
-        print(Fore.GREEN + "{}".format(message) + Style.RESET_ALL)
-
-    def _print_system_error(self, message):
-        print(Fore.RED + "{}".format(message) + Style.RESET_ALL)
-
-    def _console_clear(self):
-        os.system('cls' if os.name == "nt" else "clear")
