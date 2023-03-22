@@ -26,6 +26,9 @@ The project uses:
 >ip = 127.0.0.1<br/>
 >port = 50500
 
+#### Help in console app
+> /help
+
 ## Client Side
 
 ### Usage
@@ -49,7 +52,7 @@ The project uses:
 >ip = 127.0.0.1<br/>
 >port = 50500
 
-### Help in console app
+#### Help in console app
 > /help
 
 ## Example of usage
