@@ -21,7 +21,7 @@ The project uses:
 > python server.py
 
 #### Default values
->ip = 127.0.0.1<br/>
+>ip-address = 127.0.0.1<br/>
 >port = 50500
 
 #### Help in console app
@@ -47,7 +47,7 @@ The project uses:
 
 #### Default values
 >nickname = Undefined<br/>
->ip = 127.0.0.1<br/>
+>ip-address = 127.0.0.1<br/>
 >port = 50500
 
 #### Help in console app
