@@ -4,8 +4,6 @@ Console Messenger created by Patryk 'UltiPro' Wójtowicz using Python and RSA en
 The project uses:
 <ul>
   <li>colorama</li>
-  <li>os</li>
-  <li>socket</li>
 </ul>
 
 ## Server Side
