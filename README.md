@@ -1,10 +1,14 @@
 # Console-Messenger
 Console Messenger created by Patryk 'UltiPro' Wójtowicz using Python and RSA encryption.
 
+Server and client application for communication in the console.
+
 The project uses:
 <ul>
   <li>colorama</li>
 </ul>
+
+> Command to install dependencies: python -m pip install -r requirements.txt
 
 ## Server Side
 
