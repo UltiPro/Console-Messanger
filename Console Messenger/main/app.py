@@ -1,6 +1,5 @@
 import os
 from colorama import init, Fore, Style
-from sys import stdout
 
 
 class ConsoleMessanger():

@@ -61,9 +61,9 @@ The project uses:
 
 ##### Client 1
 
-![Console user1 usage](/screenshots/chat%201.png)
+![Console user1 usage](/screenshots/chat1.png)
 
 ##### Client 2
 
-![Console user2 usage](/screenshots/chat%202.png)
+![Console user2 usage](/screenshots/chat2.png)
 
