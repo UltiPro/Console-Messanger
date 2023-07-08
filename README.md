@@ -70,4 +70,3 @@ The project uses:
 ##### Client 2
 
 ![Console user2 usage](/screenshots/chat2.png)
-
