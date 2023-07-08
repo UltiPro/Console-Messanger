@@ -5,16 +5,19 @@ Server and client application for communication in the console.
 
 # Dependencies and Installation
 
-The project uses:
+Dependencies:
+
 <ul>
   <li>colorama</li>
 </ul>
 
-> Command to install dependencies: python -m pip install -r requirements.txt
+Installation:
 
-## Server Side
+> pip install -r requirements.txt
 
-### Usage Options
+# Server Side
+
+### Usage
 
 > python server.py [ip-address] [port]
 
@@ -23,48 +26,61 @@ The project uses:
 > python server.py
 
 ### Default values
-> ip-address = 127.0.0.1<br/>
+
+> ip-address = 127.0.0.1
+
 > port = 50500
 
-### Help in console app
+### Commands
+
 > /help
 
-## Client Side
+>
+
+>
+
+>
+
+# Client Side
 
 ### Usage
 
 > python client.py [nickname] [ip-address] [port]
 
-#### or
-
 > python client.py [nickname] [ip-address]
-
-#### or
 
 > python client.py [nickname]
 
-#### or
-
 > python client.py
 
-#### Default values
->nickname = Undefined<br/>
->ip-address = 127.0.0.1<br/>
->port = 50500
+### Default values
 
-#### Help in console app
+> nickname = Undefined
+
+> ip-address = 127.0.0.1
+
+> port = 50500
+
+### Commands
+
 > /help
 
-## Example of usage
+>
 
-##### Server
+>
 
-![Console server usage](/screenshots/server.png)
+>
 
-##### Client 1
+# Preview
 
-![Console user1 usage](/screenshots/chat1.png)
+### Server
 
-##### Client 2
+![Server preview](/screenshots/server.png)
 
-![Console user2 usage](/screenshots/chat2.png)
+### Client 1
+
+![Client 1 preview](/screenshots/chat1.png)
+
+### Client 2
+
+![Client 2 preview](/screenshots/chat2.png)
