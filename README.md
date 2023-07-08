@@ -34,13 +34,13 @@ Installation:
 
 ### Commands
 
-> /help
+> /server-stop -> Stops the server.
 
-> /server-stop
+> /server-clear -> Clears the console of messages.
 
-> /server-clear
+> /kick [nickname] - > Kicks the user with the given nickname.
 
-> /kick [nickname]
+> /help -> Provides information about available commands.
 
 # Client Side
 
@@ -64,11 +64,11 @@ Installation:
 
 ### Commands
 
-> /help
+> /client-stop -> Stops the client.
 
-> /client-stop
+> /client-clear -> Clears the console of messages.
 
-> /client-clear
+> /help -> Provides information about available commands.
 
 # Preview
 
