@@ -6,11 +6,11 @@ class ConsoleMessanger():
     def __init__(self):
         init(convert=True)
 
-    def _print_system_comunication(self, message):
-        print(Fore.YELLOW + "{}".format(message) + Style.RESET_ALL)
-
-    def _print_system_info(self, message):
+    def _print_system_information(self, message):
         print(Fore.GREEN + "{}".format(message) + Style.RESET_ALL)
+
+    def _print_system_warning(self, message):
+        print(Fore.YELLOW + "{}".format(message) + Style.RESET_ALL)
 
     def _print_system_error(self, message):
         print(Fore.RED + "{}".format(message) + Style.RESET_ALL)
