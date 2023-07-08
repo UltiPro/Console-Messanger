@@ -27,9 +27,10 @@ Installation:
 
 ### Default values
 
-> ip-address = 127.0.0.1
-
-> port = 50500
+| Property      | Value         |
+| ------------- | ------------- |
+| ip-address    | 127.0.0.1     |
+| port          | 50500         |
 
 ### Commands
 
