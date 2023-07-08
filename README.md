@@ -36,11 +36,11 @@ Installation:
 
 > /help
 
->
+> /server-stop
 
->
+> /server-clear
 
->
+> /kick [nickname]
 
 # Client Side
 
@@ -56,32 +56,30 @@ Installation:
 
 ### Default values
 
-> nickname = Undefined
-
-> ip-address = 127.0.0.1
-
-> port = 50500
+| Property      | Value         |
+| ------------- | ------------- |
+| nickname      | User          |
+| ip-address    | 127.0.0.1     |
+| port          | 50500         |
 
 ### Commands
 
 > /help
 
->
+> /client-stop
 
->
-
->
+> /client-clear
 
 # Preview
 
 ### Server
 
-![Server preview](/screenshots/server.png)
+![Server preview](/screenshots/Server.png)
 
 ### Client 1
 
-![Client 1 preview](/screenshots/chat1.png)
+![Client 1 preview](/screenshots/Client-1.png)
 
 ### Client 2
 
-![Client 2 preview](/screenshots/chat2.png)
+![Client 2 preview](/screenshots/Client-2.png)
