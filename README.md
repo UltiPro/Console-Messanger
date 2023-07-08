@@ -17,7 +17,7 @@ Installation:
 
 # Server Side
 
-### Usage
+### Using the app
 
 > python server.py [ip-address] [port]
 
@@ -44,7 +44,7 @@ Installation:
 
 # Client Side
 
-### Usage
+### Using the app
 
 > python client.py [nickname] [ip-address] [port]
 
