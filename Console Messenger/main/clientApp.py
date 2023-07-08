@@ -6,7 +6,7 @@ from rsa.rsaImplementation import RSAImplementation
 
 
 class ClientConsoleMessanger(ConsoleMessanger):
-    def __init__(self, nickname="Undefined", server_address="127.0.0.1", server_port=50500):
+    def __init__(self, nickname="User", server_address="127.0.0.1", server_port=50500):
         self.__server_address = server_address
         self.__server_port = server_port
         self.__nickname = nickname
