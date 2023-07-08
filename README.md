@@ -3,6 +3,8 @@ Console Messenger created by Patryk 'UltiPro' Wójtowicz using Python and RSA en
 
 Server and client application for communication in the console.
 
+# Dependencies and Installation
+
 The project uses:
 <ul>
   <li>colorama</li>
@@ -12,23 +14,19 @@ The project uses:
 
 ## Server Side
 
-### Usage
+### Usage Options
 
 > python server.py [ip-address] [port]
 
-#### or
-
 > python server.py [ip-address]
-
-#### or
 
 > python server.py
 
-#### Default values
->ip-address = 127.0.0.1<br/>
->port = 50500
+### Default values
+> ip-address = 127.0.0.1<br/>
+> port = 50500
 
-#### Help in console app
+### Help in console app
 > /help
 
 ## Client Side
