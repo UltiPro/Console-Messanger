@@ -3,7 +3,7 @@ Console Messenger created by Patryk 'UltiPro' Wójtowicz using Python and RSA en
 
 Server and client application for communication in the console.
 
-# Dependencies and Installation
+# Dependencies and Usage
 
 Dependencies:
 
@@ -15,7 +15,7 @@ Installation:
 
 > pip install -r requirements.txt
 
-# Server Side
+## Server Side
 
 ### Using the app
 
@@ -42,7 +42,7 @@ Installation:
 
 > /help -> Provides information about available commands.
 
-# Client Side
+## Client Side
 
 ### Using the app
 
