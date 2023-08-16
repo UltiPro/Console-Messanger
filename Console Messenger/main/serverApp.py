@@ -15,6 +15,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self.__usernames_list = []
         self.__users_codes_list = []
         self.__user_theards_list = []
+        self.__admins_list = []
         self.__recive_theard = None
         self.__running = True
 
@@ -31,14 +32,50 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self.__recive_theard.start()
         while self.__running:
             try:
-                cmd = input("Type command: (for help type /help)\n")
-                match cmd:
-                    case "/server-stop":
-                        self._stop()
-                        break
-                    case "/server-clear":
-                        self._console_clear()
-                        self._print_system_info("Console cleared... ")
+                cmd = input(
+                    "Type command: (/help for more information)\n").split(" ")
+                match cmd[0]:
+                    case "/server":
+                        try:
+                            match cmd[1]:
+                                case "stop":
+                                    self._stop()
+                                    break
+                                case "clear":
+                                    self._console_clear()
+                                    self._print_system_information(
+                                        "Console cleared... ")
+                                case _:
+                                    raise IndexError
+                        except IndexError:
+                            self._print_system_error(
+                                "This command requires parameter. Try again.")
+                    case "/kick":
+                        try:
+                            self._close_connection(
+                                self.__clients_list[self.__usernames_list.index(cmd[1])])
+                            self._broadcast(
+                                "Info: User {} has been kicked from the chat!".format(cmd[1]), None)
+                        except ValueError:
+                            self._print_system_command(
+                                "The given nickname does not match any user. Try again.")
+                        except IndexError:
+                            self._print_system_error(
+                                "This command requires parameter. Try again.")
+                    case "/admin":
+                        try:
+                            self.__admins_list.append(
+                                self.__clients_list[self.__usernames_list.index(cmd[1])])
+                            self._broadcast(
+                                "Info: User {} has been given admin permissions!".format(cmd[1]), None)
+                            self._print_system_information(
+                                "Info: User {} has been given admin permissions!".format(cmd[1]))
+                        except ValueError:
+                            self._print_system_command(
+                                "The given nickname does not match any user. Try again.")
+                        except IndexError:
+                            self._print_system_error(
+                                "This command requires parameter. Try again.")
                     case "/help":
                         self._print_help_info()
                     case _:
@@ -63,7 +100,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self.__usernames_list.append(init_data[0])
                 self.__users_codes_list.append(
                     (int(init_data[1]), int(init_data[2])))
-                self._print_system_info(
+                self._print_system_information(
                     "User {}, connected from {}".format(init_data[0], address))
                 self._broadcast("Info: User {} has join the chat!".format(
                     init_data[0]), client)
@@ -73,7 +110,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 handle_user_theard.start()
             except ValueError:
                 if client and address:
-                    self._print_system_comunication("Incorrect data from {}, client data {}".format(
+                    self._print_system_command("Incorrect data from client {} {}".format(
                         address, client))
                 else:
                     break
@@ -88,7 +125,29 @@ class ServerConsoleMessanger(ConsoleMessanger):
             try:
                 message = self.__rsa_client.decrypt_msg(
                     client.recv(1024).decode("utf-8"))
-                self._broadcast(message, None)
+                message_command = message.split(" ")
+                if (message_command[1].startswith("/")):
+                    client = self.__clients_list[self.__usernames_list.index(
+                        message_command[0][1:-2])]
+                    match message_command[1]:
+                        case "/kick":
+                            if (client in self.__admins_list):
+                                try:
+                                    self._close_connection(
+                                        self.__clients_list[self.__usernames_list.index(message_command[2])])
+                                    self._broadcast("Info: User {} has been kicked from the chat by admin {}!".format(
+                                        message_command[2], message_command[0][1:-2]), None)
+                                except ValueError:
+                                    client.send(
+                                        "Info: The given nickname does not match any user. Try again.".encode("utf-8"))
+                                except IndexError:
+                                    client.send(
+                                        "Info: This command requires parameter. Try again.".encode("utf-8"))
+                            else:
+                                client.send(
+                                    "Info: This command requires admin permissions.".encode("utf-8"))
+                else:
+                    self._broadcast(message, None)
             except (ConnectionAbortedError, ConnectionResetError, ConnectionError):
                 if client in self.__clients_list:
                     self._close_connection(client)
@@ -120,10 +179,17 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self.__users_codes_list[index_of_client])
         self.__user_theards_list.remove(theard)
         self.__clients_list.remove(client)
-        self._print_system_info(
-            "User {} disconnected.".format(nickname))
-        self._broadcast("Info: User {} left the chat!".format(
-            nickname), None)
+        if client in self.__admins_list:
+            self.__admins_list.remove(client)
+            self._print_system_information(
+                "Admin {} disconnected.".format(nickname))
+            self._broadcast(
+                "Info: Admin {} left the chat!".format(nickname), None)
+        else:
+            self._print_system_information(
+                "User {} disconnected.".format(nickname))
+            self._broadcast(
+                "Info: User {} left the chat!".format(nickname), None)
         client.close()
         theard.stop()
 
@@ -132,10 +198,14 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self.__recive_theard.stop()
         for client in self.__clients_list:
             self._close_connection(client)
-        self._print_system_info("Stopping server...")
+        self._print_system_information("Stopping server...")
         self.__server.close()
 
     def _print_help_info(self):
-        self._print_system_comunication("/server-stop -> close server")
-        self._print_system_comunication("/server-clear -> clear console")
-        self._print_system_comunication("/help -> print commands informations")
+        self._print_system_command("/server stop -> closes server")
+        self._print_system_command("/server clear -> clears console")
+        self._print_system_command(
+            "/kick [nickname] -> kicks user from server")
+        self._print_system_command(
+            "/admin [nickname] -> gives user admin permissions")
+        self._print_system_command("/help -> prints commands informations")
