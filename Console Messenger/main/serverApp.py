@@ -29,7 +29,10 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self.__server.listen()
         except OSError:
             self._print_system_error(
-                "Port '{}' is occupied. Server stopped...".format(self.__port))
+                "Could not use given IP address or port '{}' is occupied. Server stopped...".format(self.__port))
+            return
+        except OverflowError:
+            self._print_system_error("Port needs to be between 0-65535.")
             return
         self.__receive_connection_thread = StoppableThread(
             target=self._receive_connection)
@@ -76,7 +79,8 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     case "/help":
                         self._command_help()
                     case _:
-                        self._print_system_error("Unknown command. Try again.")
+                        self._print_system_command_light(
+                            "Unknown command. Try again.")
             except IndexError:
                 self._print_system_error(
                     "This command requires parameter. Try again.")
@@ -262,7 +266,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
     def _command_msg(self, msg):
         msg = ">Server<: {}".format(msg)
         self._broadcast(msg, None)
-        self._print_server_message(msg)
+        self._print_system_message(msg)
 
     def _command_private_msg(self, nickname_sender, nickname_to, message, client):
         if nickname_to == nickname_sender:
@@ -289,7 +293,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self._send_to(
                     client, "Info: The given nickname does not match any user. Try again.")
             else:
-                self._print_system_command(
+                self._print_system_error(
                     "The given nickname does not match any user. Try again.")
 
     def _command_admin(self, nickname):
@@ -301,7 +305,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self._print_system_command(
                 "Info: '{}' has been given admin permissions!".format(nickname))
         except ValueError:
-            self._print_system_command(
+            self._print_system_error(
                 "The given nickname does not match any user. Try again.")
 
     def _command_unadmin(self, nickname):
@@ -313,7 +317,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self._print_system_command(
                 "Info: '{}' has lost admin permissions!".format(nickname))
         except ValueError:
-            self._print_system_command(
+            self._print_system_error(
                 "The given nickname does not match any admin. Try again.")
 
     def _command_ban(self, nickname, client):
@@ -333,7 +337,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self._send_to(
                     client, "Info: The given nickname does not match any user. Try again.")
             else:
-                self._print_system_command(
+                self._print_system_error(
                     "The given nickname does not match any user. Try again.")
 
     # tutaj
@@ -353,7 +357,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self._send_to(
                     client, "Info: The given nickname does not match any user. Try again.")
             else:
-                self._print_system_command(
+                self._print_system_error(
                     "The given nickname does not match any user. Try again.")
 
     def _command_list(self, command, client):
@@ -371,21 +375,21 @@ class ServerConsoleMessanger(ConsoleMessanger):
                         self.__clients_list.index(admin))
                     message = "{} ".format(nickname)
             case "banned":
-                self._print_system_information("\nBanned users list:\n")
+                self._print_system_error("\nBanned users list:\n")
                 for banned in self.__banned_nicknames_list:
-                    self._print_system_error(banned+" ")
+                    self._print_system_error(banned+" ")  # zwykłe printy ?
             case _:
                 self._print_system_command(
                     "The given parameter does not match any type. Try again.")
 
     def _command_help(self):
-        self._print_system_command("/stop -> closes server")
+        self._print_system_command_light("/stop -> closes server")
         self._print_system_command("/clear -> clears console")
-        self._print_system_command(
+        self._print_system_command_light(
             "/msg [message] -> sends server message to all")
         self._print_system_command(
             "/kick [nickname] -> kicks user from server")
-        self._print_system_command(
+        self._print_system_command_light(
             "/admin [nickname] -> gives user admin permissions")
         self._print_system_command("/help -> prints commands informations")
     # tutaj
