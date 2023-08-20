@@ -216,11 +216,10 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 e, n = self.__clients_codes_list[idx]
                 client.send(RSAImplementation.encrypt_msg_default(
                     message, e, n).encode("utf-8"))
+            except ValueError:
+                return
             except (ConnectionError, ConnectionResetError, ConnectionAbortedError):
                 self._close_connection(client)
-            '''except ValueError:
-                continue
-            '''
 
     def _close_connection(self, client):
         if client not in self.__clients_list:
