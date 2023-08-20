@@ -46,31 +46,31 @@ class ServerConsoleMessanger(ConsoleMessanger):
                         self._print_system_command("Console cleared... ")
                     case "/msg":
                         message = " ".join(cmd[1:]).strip()
-                        if (message == ""):
+                        if message == "":
                             raise IndexError
                         self._command_msg(message)
                     case "/kick":
-                        if (cmd[1].replace(" ", "") == ""):
+                        if cmd[1].replace(" ", "") == "":
                             raise IndexError
                         self._command_kick(cmd[1], None)
                     case "/admin":
-                        if (cmd[1].replace(" ", "") == ""):
+                        if cmd[1].replace(" ", "") == "":
                             raise IndexError
                         self._command_admin(cmd[1])
                     case "/unadmin":
-                        if (cmd[1].replace(" ", "") == ""):
+                        if cmd[1].replace(" ", "") == "":
                             raise IndexError
                         self._command_unadmin(cmd[1])
                     case "/ban":
-                        if (cmd[1].replace(" ", "") == ""):
+                        if cmd[1].replace(" ", "") == "":
                             raise IndexError
                         self._command_ban(cmd[1], None)
                     case "/unban":
-                        if (cmd[1].replace(" ", "") == ""):
+                        if cmd[1].replace(" ", "") == "":
                             raise IndexError
                         self._command_unban(cmd[1], None)
                     case "/list":
-                        if (cmd[1].replace(" ", "") == ""):
+                        if cmd[1].replace(" ", "") == "":
                             raise IndexError
                         self._command_list(cmd[1], None)
                     case "/help":
@@ -92,11 +92,11 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 client, address = self.__server.accept()
                 init_data = client.recv(1024).decode("utf-8").split("$$$$")
                 client.send("{}$$$${}".format(e, n).encode("utf-8"))
-                if (address[0] in self.__banned_ips_list):
+                if address[0] in self.__banned_ips_list:
                     raise BannedUserIp
-                if (init_data[0] in self.__banned_nicknames_list):
+                if init_data[0] in self.__banned_nicknames_list:
                     raise BannedUserNickname
-                if (init_data[0] in self.__clients_nicknames_list):
+                if init_data[0] in self.__clients_nicknames_list:
                     raise NicknameAlreadyTaken
                 self.__clients_list.append(client)
                 self.__clients_nicknames_list.append(init_data[0])
@@ -125,17 +125,11 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 client.send(RSAImplementation.encrypt_msg_default(
                     "Info: This nickname is already taken. Choose another one.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
                 client.close()
-            except (ValueError, UnboundLocalError):
-                # tutaj
+            except (ValueError, IndexError, UnboundLocalError):
                 if client and address:
                     self._print_system_error(
-                        "Incorrect data from '{}', connection denied. More client info: {}.".format(address, client))
-                    client.send(
-                        "Error: Server connection error. Connection denied.")
+                        "Incorrect data from '{}', connection denied. More client info: {}.".format(address[0], client))
                     self._close_connection(client)
-                # tutaj
-                else:
-                    continue
             except (ConnectionError, ConnectionResetError, ConnectionAbortedError):
                 self._print_system_error(
                     "Connection from '{}' canceled. Connection error.".format(address[0]))
@@ -150,34 +144,34 @@ class ServerConsoleMessanger(ConsoleMessanger):
             try:
                 message = self.__rsa_client.decrypt_msg(
                     client.recv(1024).decode("utf-8"))
-                if (message.startswith("/")):
+                if message.startswith("/"):
                     message_command = message.split(" ")
                     match message_command[0]:
                         case "/kick":
-                            if (client not in self.__clients_admins_list):
+                            if client not in self.__clients_admins_list:
                                 raise UnauthorizedError
-                            if (message_command[1].replace(" ", "") == ""):
+                            if message_command[1].replace(" ", "") == "":
                                 raise IndexError
                             self._command_kick(message_command[1], client)
                         case "/ban":
-                            if (client not in self.__clients_admins_list):
+                            if client not in self.__clients_admins_list:
                                 raise UnauthorizedError
-                            if (message_command[1].replace(" ", "") == ""):
+                            if message_command[1].replace(" ", "") == "":
                                 raise IndexError
                             self._command_ban(message_command[1], client)
                         case "/unban":
-                            if (client not in self.__clients_admins_list):
+                            if client not in self.__clients_admins_list:
                                 raise UnauthorizedError
-                            if (message_command[1].replace(" ", "") == ""):
+                            if message_command[1].replace(" ", "") == "":
                                 raise IndexError
                             self._command_unban(message_command[1], client)
                         case "/list":
-                            if (message_command[1].replace(" ", "") == ""):
+                            if message_command[1].replace(" ", "") == "":
                                 raise IndexError
                             self._command_list(message_command[1], client)
                         # tutaj
                         case "/pv":
-                            if (message_command[1].replace(" ", "") == "" or message_command[2].replace(" ", "") == ""):
+                            if message_command[1].replace(" ", "") == "" or message_command[2].replace(" ", "") == "":
                                 self._send_to(
                                     client, "Error: This command requires two parameters (/pv [nickname] [message]). Try again.")
                             else:
@@ -199,6 +193,19 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     "Error: Connection with '{}' has been lost.".format(nickname))
                 self._close_connection(client)
 
+    def _send_to(self, to_client, message):
+        if message == "":
+            return
+        try:
+            e, n = self.__clients_codes_list[self.__clients_list.index(
+                to_client)]
+            to_client.send(RSAImplementation.encrypt_msg_default(
+                message, e, n).encode("utf-8"))
+        except ValueError:
+            return
+        except (ConnectionAbortedError, ConnectionResetError, ConnectionError):
+            self._close_connection(to_client)
+
     def _broadcast(self, message, skip_client):
         if message == "":
             return
@@ -214,29 +221,6 @@ class ServerConsoleMessanger(ConsoleMessanger):
             '''except ValueError:
                 continue
             '''
-
-    def _send_to(self, to_client, message):
-        if message == "":
-            return
-        try:
-            e, n = self.__clients_codes_list[self.__clients_list.index(
-                to_client)]
-            to_client.send(RSAImplementation.encrypt_msg_default(
-                message, e, n).encode("utf-8"))
-        except ValueError:
-            return
-        except (ConnectionAbortedError, ConnectionResetError, ConnectionError):
-            self._close_connection(to_client)
-
-    def _stop(self):
-        self._print_system_command("Stopping the server...")
-        self.__running = False
-        self.__receive_connection_thread.stop()
-        while (self.__clients_list.__len__() > 0):
-            for client in self.__clients_list:
-                self._close_connection(client)
-        self.__server.close()
-        self._print_system_command("Server stopped.")
 
     def _close_connection(self, client):
         if client not in self.__clients_list:
@@ -264,6 +248,16 @@ class ServerConsoleMessanger(ConsoleMessanger):
         # to
         client.close()
         thread.stop()
+
+    def _stop(self):
+        self._print_system_command("Stopping the server...")
+        self.__running = False
+        self.__receive_connection_thread.stop()
+        while (self.__clients_list.__len__() > 0):
+            for client in self.__clients_list:
+                self._close_connection(client)
+        self.__server.close()
+        self._print_system_command("Server stopped.")
 
     def _command_msg(self, msg):
         msg = ">Server<: {}".format(msg)
