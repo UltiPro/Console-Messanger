@@ -135,7 +135,9 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     "Connection from '{}' canceled. Connection error.".format(address[0]))
                 self._close_connection(client)
             except OSError:
-                self._stop()
+                if self.__running:
+                    self._stop()
+                break
 
     def _handle_client(self, client):
         nickname = self.__clients_nicknames_list[self.__clients_list.index(
@@ -169,14 +171,13 @@ class ServerConsoleMessanger(ConsoleMessanger):
                             if message_command[1].replace(" ", "") == "":
                                 raise IndexError
                             self._command_list(message_command[1], client)
-                        # tutaj
                         case "/pv":
-                            if message_command[1].replace(" ", "") == "" or message_command[2].replace(" ", "") == "":
+                            if message_command.__len__() < 3 or message_command[1].replace(" ", "") == "" or message_command[2].replace(" ", "") == "":
                                 self._send_to(
                                     client, "Error: This command requires two parameters (/pv [nickname] [message]). Try again.")
                             else:
-                                pass  # to
-                        # tutaj
+                                self._command_private_msg(
+                                    nickname, message_command[1], message_command[2], client)
                         case _:
                             self._send_to(
                                 client, "Error: Unknown command. Try again.")
@@ -189,9 +190,11 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self._send_to(
                     client, "Error: This command requires parameter. Try again.")
             except (ConnectionError, ConnectionResetError, ConnectionAbortedError, OSError):
-                self._print_system_error(
-                    "Error: Connection with '{}' has been lost.".format(nickname))
-                self._close_connection(client)
+                if self.__running:
+                    self._print_system_error(
+                        "Error: Connection with '{}' has been lost.".format(nickname))
+                    self._close_connection(client)
+                break
 
     def _send_to(self, to_client, message):
         if message == "":
@@ -232,19 +235,17 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self.__clients_nicknames_list.remove(nickname)
         self.__clients_codes_list.remove(self.__clients_codes_list[index])
         self.__clients_threads_list.remove(thread)
-        # to
         if client in self.__clients_admins_list:
             self.__clients_admins_list.remove(client)
             self._broadcast(
                 "Info: Admin {} left the chat!".format(nickname), None)
             self._print_system_information(
-                "Admin '{}' disconnected.".format(nickname))
+                "Admin '{}' left the chat!".format(nickname))
         else:
             self._broadcast(
                 "Info: User {} left the chat!".format(nickname), None)
             self._print_system_information(
-                "User '{}' disconnected.".format(nickname))
-        # to
+                "User '{}' left the chat!".format(nickname))
         client.close()
         thread.stop()
 
@@ -262,6 +263,20 @@ class ServerConsoleMessanger(ConsoleMessanger):
         msg = ">Server<: {}".format(msg)
         self._broadcast(msg, None)
         self._print_server_message(msg)
+
+    def _command_private_msg(self, nickname_sender, nickname_to, message, client):
+        if nickname_to == nickname_sender:
+            self._send_to(
+                client, "Error: You can not send private messages to yourself.")
+            return
+        try:
+            self._send_to(self.__clients_list[self.__clients_nicknames_list.index(
+                nickname_to)], "PV: <{}> - <{}>: {}".format(nickname_sender, nickname_to, message))
+            self._send_to(
+                client, "PV: <{}> - <{}>: {}".format(nickname_sender, nickname_to, message))
+        except ValueError:
+            self._send_to(
+                client, "Info: The given nickname does not match any user. Try again.")
 
     def _command_kick(self, nickname, client=None):
         try:
