@@ -217,7 +217,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 client.send(RSAImplementation.encrypt_msg_default(
                     message, e, n).encode("utf-8"))
             except ValueError:
-                return
+                continue
             except (ConnectionError, ConnectionResetError, ConnectionAbortedError):
                 self._close_connection(client)
 
