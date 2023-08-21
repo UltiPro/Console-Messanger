@@ -94,6 +94,8 @@ class ServerConsoleMessanger(ConsoleMessanger):
             try:
                 client, address = self.__server.accept()
                 init_data = client.recv(1024).decode("utf-8").split("$$$$")
+                e_recived = int(init_data[1])
+                n_recived = int(init_data[2])
                 client.send("{}$$$${}".format(e, n).encode("utf-8"))
                 if address[0] in self.__banned_ips_list:
                     raise BannedUserIp
@@ -103,30 +105,29 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     raise NicknameAlreadyTaken
                 self.__clients_list.append(client)
                 self.__clients_nicknames_list.append(init_data[0])
-                self.__clients_codes_list.append(
-                    (int(init_data[1]), int(init_data[2])))
+                self.__clients_codes_list.append((e_recived, n_recived))
                 self.__clients_threads_list.append(StoppableThread(
                     target=self._handle_client, args=(client, )))
                 self.__clients_threads_list[-1].start()
                 self._broadcast(
                     ">INFO<: User {} has join the chat.".format(init_data[0]), client)
                 self._print_system_information(
-                    "User '{}' connected from '{}'.".format(init_data[0], address[0]))
+                    "User '{}' connected from {}.".format(init_data[0], address))
             except BannedUserIp:
                 client.send(RSAImplementation.encrypt_msg_default(
-                    ">BAN<: You are banned at this server.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
+                    ">BAN<: You are banned at this server.", e_recived, n_recived).encode("utf-8"))
                 self._print_system_error_light(
                     "Connection from '{}' rejected. Address IP banned.".format(address[0]))
                 client.close()
             except BannedUserNickname:
                 client.send(RSAImplementation.encrypt_msg_default(
-                    ">BAN<: Your nickname is banned at this server.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
+                    ">BAN<: Your nickname is banned at this server.", e_recived, n_recived).encode("utf-8"))
                 self._print_system_error_light(
                     "Connection from '{}' rejected. Nickname '{}' is banned.".format(address[0], init_data[0]))
                 client.close()
             except NicknameAlreadyTaken:
                 client.send(RSAImplementation.encrypt_msg_default(
-                    ">ERROR<: This nickname is already taken. Choose another one.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
+                    ">ERROR<: This nickname is already taken. Choose another one.", e_recived, n_recived).encode("utf-8"))
                 client.close()
             except (ValueError, IndexError, UnboundLocalError):
                 if client and address:
@@ -179,8 +180,9 @@ class ServerConsoleMessanger(ConsoleMessanger):
                                 self._send_to(
                                     client, ">ERROR<: This command requires two parameters (/pv [nickname] [message]). Try again.")
                             else:
+                                message = " ".join(message_command[2:]).strip()
                                 self._command_private_msg(
-                                    nickname, message_command[1], message_command[2], client)
+                                    nickname, message_command[1], message, client)
                         case _:
                             self._send_to(
                                 client, ">ERROR<: Unknown command. Try again.")
@@ -193,7 +195,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self._send_to(
                     client, ">ERROR<: This command requires parameter. Try again.")
             except (ConnectionError, ConnectionResetError, ConnectionAbortedError, OSError):
-                if self.__running:
+                if self.__running and client in self.__clients_list:
                     self._print_system_error(
                         "Connection with '{}' has been lost.".format(nickname))
                     self._close_connection(client)
@@ -338,7 +340,6 @@ class ServerConsoleMessanger(ConsoleMessanger):
             else:
                 self._print_system_error(
                     "The given nickname does not match any user. Try again.")
-    # tutaj
 
     def _command_unban(self, nickname, client):
         try:
@@ -358,29 +359,42 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     "The given nickname does not match any user. Try again.")
 
     def _command_list(self, command, client):
-        message_title = ""
         message = ""
         match command:
-            case "users":
-                message_title = "Connected users list:"
-                for nickname in self.__clients_nicknames_list:
-                    message = "{} ".format(nickname)
-            case "admins":
-                message_title = "Connected admins list:"
-                for admin in self.__clients_admins_list:
-                    nickname = self.__clients_nicknames_list(
-                        self.__clients_list.index(admin))
-                    message = "{} ".format(nickname)
-            case "banned":
-                self._print_system_error("\nBanned users list:\n")
-                for banned in self.__banned_nicknames_list:
-                    self._print_system_error(banned+" ")  # zwykłe printy ?
+            case "u":
+                message = "\nConnected users list:\n"
+                if self.__clients_nicknames_list.__len__() > 0:
+                    for nickname in self.__clients_nicknames_list:
+                        message += "{} ,".format(nickname)
+                    message = message[:-2] + "\n"
+            case "a":
+                message = "\nConnected admins list:\n"
+                if self.__clients_admins_list.__len__() > 0:
+                    for admin in self.__clients_admins_list:
+                        message += "{} ,".format(
+                            self.__clients_nicknames_list[self.__clients_list.index(admin)])
+                    message = message[:-2] + "\n"
+            case "b":
+                message = "\nBanned users list:\n"
+                if self.__banned_nicknames_list.__len__() > 0:
+                    for nickname in self.__banned_nicknames_list:
+                        message += "{} ,".format(nickname)
+                    message = message[:-2] + "\n"
             case _:
-                self._print_system_command(
-                    "The given parameter does not match any type. Try again.")
+                if client:
+                    self._send_to(
+                        client, ">ERROR<: The given parameter does not match any type. Try again.")
+                else:
+                    self._print_system_error(
+                        "The given parameter does not match any type. Try again.")
+        if message != "":
+            if client:
+                self._send_to(client, message)
+            else:
+                print(message)
 
     def _command_help(self):
-        self._print_system_command_light("/stop -> closes server")
+        self._print_system_command_light("\n/stop -> closes server")
         self._print_system_command("/clear -> clears console")
         self._print_system_command_light(
             "/msg [message] -> sends server message to all")
@@ -388,5 +402,16 @@ class ServerConsoleMessanger(ConsoleMessanger):
             "/kick [nickname] -> kicks user from server")
         self._print_system_command_light(
             "/admin [nickname] -> gives user admin permissions")
-        self._print_system_command("/help -> prints commands informations")
-    # tutaj
+        self._print_system_command(
+            "/unadmin [nickname] -> takes off user admin permissions")
+        self._print_system_command_light(
+            "/ban [nickname] -> bans user from server")
+        self._print_system_command(
+            "/unban [nickname] -> unbans user from server")
+        self._print_system_command_light(
+            "/list u -> prints list of connected users")
+        self._print_system_command(
+            "/list a -> prints list of connected users with admin permissions")
+        self._print_system_command_light(
+            "/list b -> prints list of banned users")
+        self._print_system_command("/help -> prints commands informations\n")
