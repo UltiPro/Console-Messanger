@@ -24,7 +24,7 @@ class ConsoleMessanger():
     def _print_system_error_light(self, message):
         print(Fore.LIGHTRED_EX + "{}".format(message) + Style.RESET_ALL)
 
-    def _print_system_message(self, message):
+    def _print_system_server_message(self, message):
         print(Fore.BLUE + "{}".format(message) + Style.RESET_ALL)
 
     def _print_system_private_message(self, message):
