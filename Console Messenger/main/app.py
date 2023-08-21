@@ -10,7 +10,7 @@ class ConsoleMessanger():
         print(Fore.GREEN + "{}".format(message) + Style.RESET_ALL)
 
     def _print_system_information_light(self, message):
-        print(Fore.GREEN + "{}".format(message) + Style.RESET_ALL)
+        print(Fore.LIGHTGREEN_EX + "{}".format(message) + Style.RESET_ALL)
 
     def _print_system_command(self, message):
         print(Fore.YELLOW + "{}".format(message) + Style.RESET_ALL)
