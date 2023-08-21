@@ -9,11 +9,26 @@ class ConsoleMessanger():
     def _print_system_information(self, message):
         print(Fore.GREEN + "{}".format(message) + Style.RESET_ALL)
 
+    def _print_system_information_light(self, message):
+        print(Fore.GREEN + "{}".format(message) + Style.RESET_ALL)
+
     def _print_system_command(self, message):
         print(Fore.YELLOW + "{}".format(message) + Style.RESET_ALL)
+
+    def _print_system_command_light(self, message):
+        print(Fore.LIGHTYELLOW_EX + "{}".format(message) + Style.RESET_ALL)
 
     def _print_system_error(self, message):
         print(Fore.RED + "{}".format(message) + Style.RESET_ALL)
 
-    def _console_clear(self):
+    def _print_system_error_light(self, message):
+        print(Fore.LIGHTRED_EX + "{}".format(message) + Style.RESET_ALL)
+
+    def _print_system_message(self, message):
+        print(Fore.BLUE + "{}".format(message) + Style.RESET_ALL)
+
+    def _print_system_private_message(self, message):
+        print(Fore.MAGENTA + "{}".format(message) + Style.RESET_ALL)
+
+    def _clear_console(self):
         os.system('cls' if os.name == "nt" else "clear")

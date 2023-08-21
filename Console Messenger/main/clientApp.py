@@ -19,8 +19,8 @@ class ClientConsoleMessanger(ConsoleMessanger):
         self.__running = True
 
     def start(self):
-        self._console_clear()
-        self._print_system_info("Connecting to server at {}:{}, nickname: {}".format(
+        self._clear_console()
+        self._print_system_information("Connecting to server at {}:{}, nickname: {}".format(
             self.__server_address, self.__server_port, self.__nickname))
         try:
             self.__client.connect((self.__server_address, self.__server_port))
@@ -41,7 +41,6 @@ class ClientConsoleMessanger(ConsoleMessanger):
             return
         self.__recive_theard = StoppableThread(target=self._recive)
         self.__recive_theard.start()
-
         self.__write_theard = StoppableThread(target=self._write)
         self.__write_theard.start()
 
@@ -56,8 +55,14 @@ class ClientConsoleMessanger(ConsoleMessanger):
                         "Connection error. Press any button to stop client...")
                     self.__running = False
                 break
-            if message.startswith("Info: "):
-                self._print_system_comunication(message)
+            if message.startswith(">Info<:"):
+                self._print_system_command(message)
+            elif message.startswith(">Error<:"):
+                self._print_system_error(message)
+            elif message.startswith(">Server<:"):
+                self._print_server_message(message)
+            elif message == "":
+                continue
             else:
                 print(message)
 
@@ -67,12 +72,12 @@ class ClientConsoleMessanger(ConsoleMessanger):
                 message_input = input()
                 if len(message_input) == 0:
                     continue
-                if message_input.startswith("/"):
-                    self._commands_pallete(message_input)
-                    continue
-                message = "<{}>: {}".format(self.__nickname, message_input)
+                # if message_input.startswith("/"):
+                #    self._commands_pallete(message_input)
+                #    continue
+                # message = "<{}>: {}".format(self.__nickname, message_input)
                 self.__client.send(RSAImplementation.encrypt_msg_default(
-                    message, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
+                    message_input, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
             except (ConnectionError, ConnectionResetError):
                 if not self.__write_theard.stopped():
                     self._print_system_error(
@@ -86,16 +91,16 @@ class ClientConsoleMessanger(ConsoleMessanger):
     def _commands_pallete(self, cmd):
         match cmd:
             case "/client-stop":
-                self._print_system_info("Client Stopped.")
+                self._print_system_information("Client Stopped.")
                 self._stop()
             case "/client-clear":
-                self._console_clear()
-                self._print_system_info("Console cleared...")
+                self._clear_console()
+                self._print_system_information("Console cleared...")
             case "/help":
-                self._print_system_comunication("/client-stop -> close server")
-                self._print_system_comunication(
+                self._print_system_command("/client-stop -> close server")
+                self._print_system_command(
                     "/client-clear -> clear console")
-                self._print_system_comunication(
+                self._print_system_command(
                     "/help -> print commands informations")
             case _:
                 self._print_system_error("Unknown command. Try again.")
