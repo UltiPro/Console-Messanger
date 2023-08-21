@@ -267,7 +267,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
     def _command_msg(self, msg):
         msg = ">SERVER<: {}".format(msg)
         self._broadcast(msg, None)
-        self._print_system_message(msg)
+        self._print_system_server_message(msg)
 
     def _command_private_msg(self, nickname_sender, nickname_to, message, client):
         if nickname_to == nickname_sender:
