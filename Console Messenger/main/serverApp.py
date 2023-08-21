@@ -79,8 +79,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     case "/help":
                         self._command_help()
                     case _:
-                        self._print_system_command(
-                            "Unknown command. Try again.")
+                        self._print_system_error("Unknown command. Try again.")
             except IndexError:
                 self._print_system_error(
                     "This command requires parameter. Try again.")
@@ -110,24 +109,24 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     target=self._handle_client, args=(client, )))
                 self.__clients_threads_list[-1].start()
                 self._broadcast(
-                    ">Info<: {} has join the chat.".format(init_data[0]), client)
+                    ">INFO<: User {} has join the chat.".format(init_data[0]), client)
                 self._print_system_information(
-                    "User '{}' connected from '{}'.".format(init_data[0], address))
+                    "User '{}' connected from '{}'.".format(init_data[0], address[0]))
             except BannedUserIp:
                 client.send(RSAImplementation.encrypt_msg_default(
-                    ">Error<: You are banned at this server.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
-                self._print_system_error(
+                    ">BAN<: You are banned at this server.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
+                self._print_system_error_light(
                     "Connection from '{}' rejected. Address IP banned.".format(address[0]))
                 client.close()
             except BannedUserNickname:
                 client.send(RSAImplementation.encrypt_msg_default(
-                    ">Error<: Your nickname is banned at this server.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
-                self._print_system_error(
+                    ">BAN<: Your nickname is banned at this server.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
+                self._print_system_error_light(
                     "Connection from '{}' rejected. Nickname '{}' is banned.".format(address[0], init_data[0]))
                 client.close()
             except NicknameAlreadyTaken:
                 client.send(RSAImplementation.encrypt_msg_default(
-                    ">Error<: This nickname is already taken. Choose another one.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
+                    ">ERROR<: This nickname is already taken. Choose another one.", int(init_data[1]), int(init_data[2])).encode("utf-8"))
                 client.close()
             except (ValueError, IndexError, UnboundLocalError):
                 if client and address:
@@ -178,25 +177,25 @@ class ServerConsoleMessanger(ConsoleMessanger):
                         case "/pv":
                             if message_command.__len__() < 3 or message_command[1].replace(" ", "") == "" or message_command[2].replace(" ", "") == "":
                                 self._send_to(
-                                    client, ">Error<: This command requires two parameters (/pv [nickname] [message]). Try again.")
+                                    client, ">ERROR<: This command requires two parameters (/pv [nickname] [message]). Try again.")
                             else:
                                 self._command_private_msg(
                                     nickname, message_command[1], message_command[2], client)
                         case _:
                             self._send_to(
-                                client, ">CMD<: Unknown command. Try again.")
+                                client, ">ERROR<: Unknown command. Try again.")
                 else:
                     self._broadcast("<{}>: {}".format(nickname, message), None)
             except UnauthorizedError:
                 self._send_to(
-                    client, ">Error<: This command requires admin permissions.")
+                    client, ">ERROR<: This command requires admin permissions.")
             except IndexError:
                 self._send_to(
-                    client, ">Error<: This command requires parameter. Try again.")
+                    client, ">ERROR<: This command requires parameter. Try again.")
             except (ConnectionError, ConnectionResetError, ConnectionAbortedError, OSError):
                 if self.__running:
                     self._print_system_error(
-                        ">Error<: Connection with '{}' has been lost.".format(nickname))
+                        "Connection with '{}' has been lost.".format(nickname))
                     self._close_connection(client)
                 break
 
@@ -242,12 +241,12 @@ class ServerConsoleMessanger(ConsoleMessanger):
         if client in self.__clients_admins_list:
             self.__clients_admins_list.remove(client)
             self._broadcast(
-                ">Info<: Admin {} left the chat!".format(nickname), None)
+                ">INFO<: Admin {} left the chat!".format(nickname), None)
             self._print_system_information(
                 "Admin '{}' left the chat!".format(nickname))
         else:
             self._broadcast(
-                ">Info<: User {} left the chat!".format(nickname), None)
+                ">INFO<: User {} left the chat!".format(nickname), None)
             self._print_system_information(
                 "User '{}' left the chat!".format(nickname))
         client.close()
@@ -264,14 +263,14 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self._print_system_command("Server stopped.")
 
     def _command_msg(self, msg):
-        msg = ">Server<: {}".format(msg)
+        msg = ">SERVER<: {}".format(msg)
         self._broadcast(msg, None)
         self._print_system_message(msg)
 
     def _command_private_msg(self, nickname_sender, nickname_to, message, client):
         if nickname_to == nickname_sender:
             self._send_to(
-                client, ">Error<: You can not send private messages to yourself.")
+                client, ">ERROR<: You can not send private messages to yourself.")
             return
         try:
             self._send_to(self.__clients_list[self.__clients_nicknames_list.index(
@@ -280,7 +279,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 client, "<{}> - <{}>: {}".format(nickname_sender, nickname_to, message))
         except ValueError:
             self._send_to(
-                client, ">Error<: The given nickname does not match any user. Try again.")
+                client, ">ERROR<: The given nickname does not match any user. Try again.")
 
     def _command_kick(self, nickname, client=None):
         try:
@@ -291,7 +290,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
         except ValueError:
             if client:
                 self._send_to(
-                    client, ">Error<: The given nickname does not match any user. Try again.")
+                    client, ">ERROR<: The given nickname does not match any user. Try again.")
             else:
                 self._print_system_error(
                     "The given nickname does not match any user. Try again.")
@@ -303,7 +302,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self._broadcast(
                 ">CMD<: {} has been given admin permissions!".format(nickname), None)
             self._print_system_command(
-                "CMD: '{}' has been given admin permissions!".format(nickname))
+                "'{}' has been given admin permissions!".format(nickname))
         except ValueError:
             self._print_system_error(
                 "The given nickname does not match any user. Try again.")
@@ -315,49 +314,45 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self._broadcast(
                 ">CMD<: {} has lost admin permissions!".format(nickname), None)
             self._print_system_command(
-                "Info: '{}' has lost admin permissions!".format(nickname))
+                "'{}' has lost admin permissions!".format(nickname))
         except ValueError:
             self._print_system_error(
                 "The given nickname does not match any admin. Try again.")
 
-# kolory
     def _command_ban(self, nickname, client):
         try:
             client = self.__clients_list[self.__clients_nicknames_list.index(
                 nickname)]
             self.__banned_nicknames_list.append(nickname)
             self.__banned_ips_list.append(client.getpeername()[0])
-            self._send_to(client, ">Ban<: You were banned from the chat!")
+            self._send_to(client, ">BAN<: You were banned from the chat!")
             self._close_connection(client)
             self._broadcast(
-                ">Ban<: {} has been banned from the chat!".format(nickname), None)
-            self._print_system_error(
-                "Ban: '{}' has been banned from the chat!".format(nickname))
+                ">BAN<: {} has been banned from the chat!".format(nickname), None)
+            self._print_system_error_light(
+                "'{}' has been banned from the chat!".format(nickname))
         except ValueError:
             if client:
                 self._send_to(
-                    client, ">Error<: The given nickname does not match any user. Try again.")
+                    client, ">ERROR<: The given nickname does not match any user. Try again.")
             else:
                 self._print_system_error(
                     "The given nickname does not match any user. Try again.")
-    # kolory
     # tutaj
 
     def _command_unban(self, nickname, client):
         try:
-            index = self.__banned_nicknames_list[self.__banned_nicknames_list.index(
-                nickname)]
-            address = self.__banned_ips_list[index]
-            self.__banned_nicknames_list.remove(nickname)
-            self.__banned_ips_list.remove(address)
+            index = self.__banned_nicknames_list.index(nickname)
+            self.__banned_nicknames_list.pop(index)
+            self.__banned_ips_list.pop(index)
             self._broadcast(
-                ">CMD<: {} has been unbanned from the chat!".format(nickname), None)
-            self._print_system_command(
-                "Info: '{}' has been unbanned from the chat!".format(nickname))
+                ">UNBAN<: {} has been unbanned from the chat!".format(nickname), None)
+            self._print_system_information_light(
+                "'{}' has been unbanned from the chat!".format(nickname))
         except ValueError:
             if client:
                 self._send_to(
-                    client, ">Error<: The given nickname does not match any user. Try again.")
+                    client, ">ERROR<: The given nickname does not match any user. Try again.")
             else:
                 self._print_system_error(
                     "The given nickname does not match any user. Try again.")
