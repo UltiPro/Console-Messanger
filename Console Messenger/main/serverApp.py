@@ -13,7 +13,6 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__rsa_client = RSAImplementation()
         self.__receive_connection_thread = None
-        self.__running = True
         self.__clients_list = []
         self.__clients_nicknames_list = []
         self.__clients_codes_list = []
@@ -21,6 +20,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self.__clients_admins_list = []
         self.__banned_nicknames_list = []
         self.__banned_ips_list = []
+        self.__running = True
 
     def start(self):
         self._clear_console()
