@@ -13,10 +13,10 @@ class ClientConsoleMessanger(ConsoleMessanger):
         self.__server_port = server_port
         self.__client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__rsa_client = RSAImplementation()
-        self.__server_public_key_e = None
-        self.__server_public_key_n = None
         self.__receive_messages_thread = None
         self.__write_messages_theard = None
+        self.__server_public_key_e = None
+        self.__server_public_key_n = None
         self.__running = True
 
     def start(self):
@@ -43,20 +43,20 @@ class ClientConsoleMessanger(ConsoleMessanger):
             return
         # tutaj
         self.__receive_messages_thread = StoppableThread(
-            target=self._recive_messages)
+            target=self._receive_messages)
         self.__write_messages_theard = StoppableThread(
             target=self._write_messages)
         self.__receive_messages_thread.start()
         self.__write_messages_theard.start()
 
-    def _recive_messages(self):
+    def _receive_messages(self):
         while self.__running:
             try:
                 message = self.__rsa_client.decrypt_msg(
                     self.__client.recv(1024).decode("utf-8"))
                 # tutaj
             except (ConnectionError, ConnectionResetError):
-                if not self.__recive_theard.stopped():
+                if not self.__receive_messages_thread.stopped():
                     self._print_system_error(
                         "Connection error. Press any button to stop client...")
                     self.__running = False
@@ -95,7 +95,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
                 self.__client.send(RSAImplementation.encrypt_msg_default(
                     message, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
             except (ConnectionError, ConnectionResetError):
-                if not self.__write_theard.stopped():
+                if not self.__write_messages_theard.stop():
                     self._print_system_error(
                         "Connection to server terminated. Press any button to stop client...")
                     self.__running = False
@@ -119,7 +119,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
                 self._stop()
             case "/clear":
                 self._clear_console()
-                self._print_system_information("Console cleared...")
+                self._print_system_command("Console cleared...")
             case "/help":
                 self._help()
             case _:
