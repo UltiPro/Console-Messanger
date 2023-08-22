@@ -358,9 +358,9 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self._print_system_error(
                     "The given nickname does not match any user. Try again.")
 
-    def _command_list(self, command, client):
+    def _command_list(self, cmd, client):
         message = ""
-        match command:
+        match cmd:
             case "u":
                 message = "\nConnected users list:\n"
                 if self.__clients_nicknames_list.__len__() > 0:
