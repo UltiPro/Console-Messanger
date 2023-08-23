@@ -1,8 +1,8 @@
 import socket
+from threading import Thread
 
 from main.app import ConsoleMessanger
 from main.exceptions import *
-from thread.stoppableThread import StoppableThread
 from rsa.rsaImplementation import RSAImplementation
 
 
@@ -34,7 +34,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
         except OverflowError:
             self._print_system_error("Port needs to be between 0-65535.")
             return
-        self.__receive_connection_thread = StoppableThread(
+        self.__receive_connection_thread = Thread(
             target=self._receive_connection)
         self.__receive_connection_thread.start()
         while self.__running:
@@ -106,8 +106,8 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self.__clients_list.append(client)
                 self.__clients_nicknames_list.append(init_data[0])
                 self.__clients_codes_list.append((e_recived, n_recived))
-                self.__clients_threads_list.append(StoppableThread(
-                    target=self._handle_client, args=(client, )))
+                self.__clients_threads_list.append(
+                    Thread(target=self._handle_client, args=(client, )))
                 self.__clients_threads_list[-1].start()
                 self._broadcast(
                     ">INFO<: User {} has join the chat.".format(init_data[0]), client)
@@ -252,12 +252,10 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self._print_system_information(
                 "User '{}' left the chat!".format(nickname))
         client.close()
-        thread.stop()
 
     def _stop(self):
         self._print_system_command("Stopping the server...")
         self.__running = False
-        self.__receive_connection_thread.stop()
         while (self.__clients_list.__len__() > 0):
             for client in self.__clients_list:
                 self._close_connection(client)
