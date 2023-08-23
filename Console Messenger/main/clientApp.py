@@ -31,18 +31,18 @@ class ClientConsoleMessanger(ConsoleMessanger):
             self.__server_public_key_e = int(self.__server_public_key_e)
             self.__server_public_key_n = int(self.__server_public_key_n)
         except:
-            #tutaj
+            # tutaj
             self._print_system_error(
                 "Server internal error. Stopping client...")
-            #tutaj
+            # tutaj
             return
         self.__receive_messages_thread = StoppableThread(
             target=self._receive_messages)
         self.__receive_messages_thread.start()
         while self.__running:
             try:
+                message = input()
                 # tutaj
-                message = input("Type command or message: (Type /help for more informations)\n")
                 if len(message) == 0:
                     continue
                 if message.startswith("/"):
@@ -50,18 +50,17 @@ class ClientConsoleMessanger(ConsoleMessanger):
                    continue
                 self.__client.send(RSAImplementation.encrypt_msg_default(
                     message, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
-            except (ConnectionError, ConnectionResetError):
-                self._print_system_error(
-                    "Connection to server terminated. Press any button to stop client...")
-                self.__running = False
-                break
-            except EOFError:
-                self._print_system_error("Ctrl + C -> Stopping client...")
-                self._stop()
+                # tutaj
             except KeyboardInterrupt:
                 self._stop()
                 break
-            # tutaj
+            except:
+                # tutaj
+                self._print_system_error(
+                    "Connection to server terminated. Stopping client...")
+                # tutaj
+                self._stop()
+                break
         exit(0)
 
     def _receive_messages(self):
@@ -69,12 +68,12 @@ class ClientConsoleMessanger(ConsoleMessanger):
             try:
                 message = self.__rsa_client.decrypt_msg(
                     self.__client.recv(1024).decode("utf-8"))
+            except:
                 # tutaj
-            except (ConnectionError, ConnectionResetError):
-                if not self.__receive_messages_thread.stopped():
-                    self._print_system_error(
-                        "Connection error. Press any button to stop client...")
-                    self.__running = False
+                self._print_system_error(
+                    "Connection error. Press any button to stop client...")
+                # tutaj
+                self._stop()
                 break
             if message == "":
                 continue
@@ -94,7 +93,6 @@ class ClientConsoleMessanger(ConsoleMessanger):
                 self._print_system_private_message(message)
             else:
                 print(message)
-                # tutaj
 
     def _stop(self):
         self._print_system_command("Stopping the client...")
