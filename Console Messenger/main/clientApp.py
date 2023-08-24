@@ -39,14 +39,12 @@ class ClientConsoleMessanger(ConsoleMessanger):
         while self.__running:
             try:
                 message = input()
-                #tutaj
                 if not self.__running:
                     break
                 if len(message) == 0:
                     self._print_system_error(
                         "Empty input. Type command or message: (Type /help for more informations)")
                     continue
-                #tutaj
                 if message.startswith("/"):
                    self._commands(message)
                    continue
@@ -56,7 +54,6 @@ class ClientConsoleMessanger(ConsoleMessanger):
                 self._stop()
                 break
             except:
-                # tutaj
                 self._print_system_error(
                     "Connection error or internal server error. Stopping client...")
                 self._stop()
