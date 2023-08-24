@@ -1,9 +1,9 @@
 import socket
 from threading import Thread
 
-from main.app import ConsoleMessanger
-from main.exceptions import *
-from rsa.rsaImplementation import RSAImplementation
+from chat.app import ConsoleMessanger
+from chat.serverAppExceptions import *
+from rsa.rsa import RSA
 
 
 class ServerConsoleMessanger(ConsoleMessanger):
@@ -11,7 +11,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self.__ip_address = ip_address
         self.__port = int(port)
         self.__server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__rsa_client = RSAImplementation()
+        self.__rsa_client = RSA()
         self.__receive_connection_thread = None
         self.__clients_list = []
         self.__clients_nicknames_list = []
@@ -114,19 +114,19 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self._print_system_information(
                     "User '{}' connected from {}.".format(init_data[0], address))
             except BannedUserIp:
-                client.send(RSAImplementation.encrypt_msg_default(
+                client.send(RSA.encrypt_msg_default(
                     ">BAN<: You are banned at this server.", e_recived, n_recived).encode("utf-8"))
                 self._print_system_error_light(
                     "Connection from '{}' rejected. Address IP banned.".format(address[0]))
                 client.close()
             except BannedUserNickname:
-                client.send(RSAImplementation.encrypt_msg_default(
+                client.send(RSA.encrypt_msg_default(
                     ">BAN<: Your nickname is banned at this server.", e_recived, n_recived).encode("utf-8"))
                 self._print_system_error_light(
                     "Connection from '{}' rejected. Nickname '{}' is banned.".format(address[0], init_data[0]))
                 client.close()
             except NicknameAlreadyTaken:
-                client.send(RSAImplementation.encrypt_msg_default(
+                client.send(RSA.encrypt_msg_default(
                     ">ERROR<: This nickname is already taken. Choose another one.", e_recived, n_recived).encode("utf-8"))
                 client.close()
             except (ValueError, IndexError, UnboundLocalError):
@@ -155,19 +155,19 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     match message_command[0]:
                         case "/kick":
                             if client not in self.__clients_admins_list:
-                                raise UnauthorizedError
+                                raise UnauthorizedUserAccess
                             if message_command[1].replace(" ", "") == "":
                                 raise IndexError
                             self._command_kick(message_command[1], client)
                         case "/ban":
                             if client not in self.__clients_admins_list:
-                                raise UnauthorizedError
+                                raise UnauthorizedUserAccess
                             if message_command[1].replace(" ", "") == "":
                                 raise IndexError
                             self._command_ban(message_command[1], client)
                         case "/unban":
                             if client not in self.__clients_admins_list:
-                                raise UnauthorizedError
+                                raise UnauthorizedUserAccess
                             if message_command[1].replace(" ", "") == "":
                                 raise IndexError
                             self._command_unban(message_command[1], client)
@@ -188,7 +188,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                                 client, ">ERROR<: Unknown command. Try again.")
                 else:
                     self._broadcast("<{}>: {}".format(nickname, message), None)
-            except UnauthorizedError:
+            except UnauthorizedUserAccess:
                 self._send_to(
                     client, ">ERROR<: This command requires admin permissions.")
             except IndexError:
@@ -207,7 +207,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
         try:
             e, n = self.__clients_codes_list[self.__clients_list.index(
                 to_client)]
-            to_client.send(RSAImplementation.encrypt_msg_default(
+            to_client.send(RSA.encrypt_msg_default(
                 message, e, n).encode("utf-8"))
         except ValueError:
             return
@@ -222,7 +222,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 continue
             try:
                 e, n = self.__clients_codes_list[idx]
-                client.send(RSAImplementation.encrypt_msg_default(
+                client.send(RSA.encrypt_msg_default(
                     message, e, n).encode("utf-8"))
             except ValueError:
                 continue
@@ -260,6 +260,12 @@ class ServerConsoleMessanger(ConsoleMessanger):
             for client in self.__clients_list:
                 self._close_connection(client)
         self.__server.close()
+        banned_file = open("/chat/banned", "w")
+        banned_file.close()
+        banned_file = open("/chat/banned", "a")
+        for idx, ip in enumerate(self.__banned_ips_list):
+            banned_file.write("{}|{}".format(
+                ip, self.__banned_nicknames_list[idx]))
         self._print_system_command("Server stopped.")
 
     def _command_msg(self, msg):

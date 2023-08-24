@@ -10,5 +10,5 @@ class NicknameAlreadyTaken(Exception):
     pass
 
 
-class UnauthorizedError(Exception):
+class UnauthorizedUserAccess(Exception):
     pass

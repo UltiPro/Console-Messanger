@@ -2,8 +2,8 @@ import socket
 import re
 from threading import Thread
 
-from main.app import ConsoleMessanger
-from rsa.rsaImplementation import RSAImplementation
+from chat.app import ConsoleMessanger
+from rsa.rsa import RSA
 
 
 class ClientConsoleMessanger(ConsoleMessanger):
@@ -12,7 +12,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
         self.__server_address = server_address
         self.__server_port = server_port
         self.__client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.__rsa_client = RSAImplementation()
+        self.__rsa_client = RSA()
         self.__receive_messages_thread = None
         self.__server_public_key_e = None
         self.__server_public_key_n = None
@@ -39,7 +39,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
         while self.__running:
             try:
                 message = input()
-                if not self.__running:
+                if not self.__running:  # jak rozwiąże problem to git?
                     break
                 if len(message) == 0:
                     self._print_system_error(
@@ -48,7 +48,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
                 if message.startswith("/"):
                    self._commands(message)
                    continue
-                self.__client.send(RSAImplementation.encrypt_msg_default(
+                self.__client.send(RSA.encrypt_msg_default(
                     message, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
             except KeyboardInterrupt:
                 self._stop()
@@ -106,7 +106,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
             case "/help":
                 self._help()
             case _:
-                self.__client.send(RSAImplementation.encrypt_msg_default(
+                self.__client.send(RSA.encrypt_msg_default(
                     cmd, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
 
     def _help(self):

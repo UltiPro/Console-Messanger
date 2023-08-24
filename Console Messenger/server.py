@@ -1,6 +1,6 @@
 import sys
 
-from main.serverApp import ServerConsoleMessanger
+from chat.serverApp import ServerConsoleMessanger
 
 server = None
 

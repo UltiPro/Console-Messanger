@@ -6,6 +6,9 @@ class ConsoleMessanger():
     def __init__(self):
         init(convert=True)
 
+    def _clear_console(self):
+        os.system('cls' if os.name == "nt" else "clear")
+
     def _print_system_information(self, message):
         print(Fore.GREEN + "{}".format(message) + Style.RESET_ALL)
 
@@ -29,6 +32,3 @@ class ConsoleMessanger():
 
     def _print_system_private_message(self, message):
         print(Fore.MAGENTA + "{}".format(message) + Style.RESET_ALL)
-
-    def _clear_console(self):
-        os.system('cls' if os.name == "nt" else "clear")

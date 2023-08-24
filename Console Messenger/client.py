@@ -1,6 +1,6 @@
 import sys
 
-from main.clientApp import ClientConsoleMessanger
+from chat.clientApp import ClientConsoleMessanger
 
 client = None
 
