@@ -3,7 +3,9 @@ import random
 
 
 class RSA():
-    def __init__(self, min=2, max=101):
+    def __init__(self, min=11, max=101):
+        if min < 11:
+            min = 11
         self.__n, self.__phi = self._generate_n_phi(min, max)
         self.__e = self._generate_e()
         self.__d = self._generate_d()
