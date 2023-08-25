@@ -25,6 +25,15 @@ class ServerConsoleMessanger(ConsoleMessanger):
     def start(self):
         self._clear_console()
         try:
+            with open("./chat/banned_users") as banned_users_file:
+                banned_users = [line for line in banned_users_file]
+            for banned_user in banned_users:
+                ip, nickname, _ = banned_user.split("|")
+                self.__banned_ips_list.append(ip)
+                self.__banned_nicknames_list.append(nickname)
+        except:
+            pass
+        try:
             self.__server.bind((self.__ip_address, self.__port))
             self.__server.listen()
         except OSError:
@@ -260,12 +269,13 @@ class ServerConsoleMessanger(ConsoleMessanger):
             for client in self.__clients_list:
                 self._close_connection(client)
         self.__server.close()
-        '''banned_file = open("/chat/banned", "w")
-        banned_file.close()
-        banned_file = open("/chat/banned", "a")
+        banned_users_file = open("./chat/banned_users", "w")
+        banned_users_file.close()
+        banned_users_file = open("./chat/banned_users", "a")
         for idx, ip in enumerate(self.__banned_ips_list):
-            banned_file.write("{}|{}".format(
-                ip, self.__banned_nicknames_list[idx]))'''
+            banned_users_file.write("{}|{}|\n".format(
+                ip, self.__banned_nicknames_list[idx]))
+        banned_users_file.close()
         self._print_system_command("Server stopped.")
 
     def _command_msg(self, msg):
