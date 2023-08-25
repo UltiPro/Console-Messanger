@@ -283,10 +283,12 @@ class ServerConsoleMessanger(ConsoleMessanger):
         banned_users_file.close()
         self._print_system_command("Server stopped.")
 
-    def _command_msg(self, msg):
-        msg = ">SERVER<: {}".format(msg)
-        self._broadcast(msg, None)
-        self._print_system_server_message(msg)
+    def _command_msg(self, message):
+        if len(message) < 1 or len(message) > 128:
+            return
+        message = ">SERVER<: {}".format(message)
+        self._broadcast(message, None)
+        self._print_system_server_message(message)
 
     def _command_private_msg(self, nickname_sender, nickname_to, message, client):
         if nickname_to == nickname_sender:
@@ -380,9 +382,9 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 self._print_system_error(
                     "The given nickname does not match any user. Try again.")
 
-    def _command_list(self, cmd, client):
+    def _command_list(self, command, client):
         message = ""
-        match cmd:
+        match command:
             case "u":
                 message = "\nConnected users list:\n"
                 if self.__clients_nicknames_list.__len__() > 0:
