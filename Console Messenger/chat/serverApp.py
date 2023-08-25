@@ -25,13 +25,16 @@ class ServerConsoleMessanger(ConsoleMessanger):
     def start(self):
         self._clear_console()
         try:
-            with open("./chat/banned_users") as banned_users_file:
-                banned_users = [line for line in banned_users_file]
+            with open("./chat/banned_users", "r") as banned_users_file:
+                banned_users = [data for data in banned_users_file]
             for banned_user in banned_users:
-                ip, nickname, _ = banned_user.split("|")
-                self.__banned_ips_list.append(ip)
-                self.__banned_nicknames_list.append(nickname)
-        except:
+                try:
+                    ip, nickname, _ = banned_user.split("|")
+                    self.__banned_ips_list.append(ip)
+                    self.__banned_nicknames_list.append(nickname)
+                except:
+                    continue
+        except FileNotFoundError:
             pass
         try:
             self.__server.bind((self.__ip_address, self.__port))
@@ -159,6 +162,8 @@ class ServerConsoleMessanger(ConsoleMessanger):
             try:
                 message = self.__rsa_client.decrypt_msg(
                     client.recv(1024).decode("utf-8"))
+                if len(message) < 1 or len(message) > 128:
+                    continue
                 if message.startswith("/"):
                     message_command = message.split(" ")
                     match message_command[0]:
@@ -211,7 +216,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 break
 
     def _send_to(self, to_client, message):
-        if message == "":
+        if len(message) < 1 or len(message) > 128:
             return
         try:
             e, n = self.__clients_codes_list[self.__clients_list.index(
@@ -224,7 +229,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self._close_connection(to_client)
 
     def _broadcast(self, message, skip_client):
-        if message == "":
+        if len(message) < 1 or len(message) > 128:
             return
         for idx, client in enumerate(self.__clients_list):
             if client is skip_client:
@@ -299,8 +304,11 @@ class ServerConsoleMessanger(ConsoleMessanger):
 
     def _command_kick(self, nickname, client=None):
         try:
-            self._close_connection(
-                self.__clients_list[self.__clients_nicknames_list.index(nickname)])
+            client_to_kick = self.__clients_list[self.__clients_nicknames_list.index(
+                nickname)]
+            self._send_to(client_to_kick,
+                          ">ERROR<: You have been kicked out of the chat!")
+            self._close_connection(client_to_kick)
             self._broadcast(
                 ">CMD<: {} has been kicked from the chat!".format(nickname), None)
         except ValueError:
