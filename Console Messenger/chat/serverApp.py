@@ -116,14 +116,14 @@ class ServerConsoleMessanger(ConsoleMessanger):
             except BannedUserIp:
                 client.send(RSA.encrypt_msg_default(
                     ">BAN<: You are banned at this server.", e_recived, n_recived).encode("utf-8"))
-                self._print_system_error_light(
+                self._print_system_ban(
                     "Connection from '{}' rejected. Address IP banned.".format(address[0]))
                 client.close()
             except BannedUserNickname:
                 client.send(RSA.encrypt_msg_default(
                     ">BAN<: Your nickname is banned at this server.", e_recived, n_recived).encode("utf-8"))
-                self._print_system_error_light(
-                    "Connection from '{}' rejected. Nickname '{}' is banned.".format(address[0], init_data[0]))
+                self._print_system_ban("Connection from '{}' rejected. Nickname '{}' is banned.".format(
+                    address[0], init_data[0]))
                 client.close()
             except NicknameAlreadyTaken:
                 client.send(RSA.encrypt_msg_default(
@@ -260,12 +260,12 @@ class ServerConsoleMessanger(ConsoleMessanger):
             for client in self.__clients_list:
                 self._close_connection(client)
         self.__server.close()
-        banned_file = open("/chat/banned", "w")
+        '''banned_file = open("/chat/banned", "w")
         banned_file.close()
         banned_file = open("/chat/banned", "a")
         for idx, ip in enumerate(self.__banned_ips_list):
             banned_file.write("{}|{}".format(
-                ip, self.__banned_nicknames_list[idx]))
+                ip, self.__banned_nicknames_list[idx]))'''
         self._print_system_command("Server stopped.")
 
     def _command_msg(self, msg):
@@ -335,7 +335,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self._close_connection(client)
             self._broadcast(
                 ">BAN<: {} has been banned from the chat!".format(nickname), None)
-            self._print_system_error_light(
+            self._print_system_ban(
                 "'{}' has been banned from the chat!".format(nickname))
         except ValueError:
             if client:
@@ -352,7 +352,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self.__banned_ips_list.pop(index)
             self._broadcast(
                 ">UNBAN<: {} has been unbanned from the chat!".format(nickname), None)
-            self._print_system_information_light(
+            self._print_system_unban(
                 "'{}' has been unbanned from the chat!".format(nickname))
         except ValueError:
             if client:
@@ -398,24 +398,21 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 print(message)
 
     def _command_help(self):
-        self._print_system_command_light("\n/stop -> closes server")
-        self._print_system_command("/clear -> clears console")
-        self._print_system_command_light(
+        self._print_system_command("\n/stop -> closes server")
+        self._print_system_command2("/clear -> clears console")
+        self._print_system_command(
             "/msg [message] -> sends server message to all")
-        self._print_system_command(
+        self._print_system_command2(
             "/kick [nickname] -> kicks user from server")
-        self._print_system_command_light(
+        self._print_system_command(
             "/admin [nickname] -> gives user admin permissions")
-        self._print_system_command(
+        self._print_system_command2(
             "/unadmin [nickname] -> takes off user admin permissions")
-        self._print_system_command_light(
-            "/ban [nickname] -> bans user from server")
-        self._print_system_command(
+        self._print_system_command("/ban [nickname] -> bans user from server")
+        self._print_system_command2(
             "/unban [nickname] -> unbans user from server")
-        self._print_system_command_light(
-            "/list u -> prints list of connected users")
-        self._print_system_command(
+        self._print_system_command("/list u -> prints list of connected users")
+        self._print_system_command2(
             "/list a -> prints list of connected users with admin permissions")
-        self._print_system_command_light(
-            "/list b -> prints list of banned users")
-        self._print_system_command("/help -> prints commands informations\n")
+        self._print_system_command("/list b -> prints list of banned users")
+        self._print_system_command2("/help -> prints commands informations\n")
