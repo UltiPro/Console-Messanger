@@ -11,16 +11,18 @@ class RSA():
         self.__d = self._generate_d()
 
     def _generate_n_phi(self, min, max):
-        numbers = [i for i in range(min, max)]
-        for i in range(min, max):
-            for j in range(2, math.ceil(i/2)):
-                if i % j == 0:
-                    numbers.remove(i)
-                    break
+        numbers = [number for number in range(
+            min, max) if self._is_prime(number)]
         p = random.choice(numbers)
         numbers.remove(p)
         q = random.choice(numbers)
         return (p * q, (p - 1) * (q - 1))
+
+    def _is_prime(self, number):
+        for i in range(2, int(math.sqrt(number)) + 1):
+            if number % i == 0:
+                return False
+        return True
 
     def _generate_e(self):
         e_values = []
