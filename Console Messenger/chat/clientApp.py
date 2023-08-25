@@ -75,14 +75,14 @@ class ClientConsoleMessanger(ConsoleMessanger):
                 continue
             elif message.startswith(">INFO<:"):
                 self._print_system_information(message)
-            elif message.startswith(">UNBAN<:"):
-                self._print_system_information_light(message)
             elif message.startswith(">CMD<:"):
                 self._print_system_command(message)
             elif message.startswith(">ERROR<:"):
                 self._print_system_error(message)
             elif message.startswith(">BAN<:"):
-                self._print_system_error_light(message)
+                self._print_system_ban(message)
+            elif message.startswith(">UNBAN<:"):
+                self._print_system_unban(message)
             elif message.startswith(">SERVER<:"):
                 self._print_system_server_message(message)
             elif re.match("^<\w*> - <\w*>: .*$", message):
@@ -110,17 +110,17 @@ class ClientConsoleMessanger(ConsoleMessanger):
                     cmd, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
 
     def _help(self):
-        self._print_system_command_light("\n/stop -> closes application")
-        self._print_system_command("/clear -> clears console")
-        self._print_system_command_light(
-            "/kick [nickname] -> kicks user from server (requires admin permissions)")
+        self._print_system_command("\n/stop -> closes application")
+        self._print_system_command2("/clear -> clears console")
         self._print_system_command(
+            "/kick [nickname] -> kicks user from server (requires admin permissions)")
+        self._print_system_command2(
             "/ban [nickname] -> bans user from server (requires admin permissions)")
-        self._print_system_command_light(
+        self._print_system_command(
             "/unban [nickname] -> unbans user from server (requires admin permissions)")
-        self._print_system_command("/list u -> prints list of connected users")
-        self._print_system_command_light(
+        self._print_system_command2(
+            "/list u -> prints list of connected users")
+        self._print_system_command(
             "/list a -> prints list of connected users with admin permissions")
-        self._print_system_command("/list b -> prints list of banned users")
-        self._print_system_command_light(
-            "/help -> prints commands informations\n")
+        self._print_system_command2("/list b -> prints list of banned users")
+        self._print_system_command("/help -> prints commands informations\n")
