@@ -1,3 +1,4 @@
+import os
 import socket
 from threading import Thread
 
@@ -98,7 +99,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
             except KeyboardInterrupt:
                 self._stop()
                 break
-        exit(0)
+        os._exit(0)
 
     def _receive_connection(self):
         e, n = self.__rsa_client.public_key()
@@ -115,6 +116,8 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     raise BannedUserNickname
                 if init_data[0] in self.__clients_nicknames_list:
                     raise NicknameAlreadyTaken
+                if len(init_data[0]) > 24 or len(init_data[0]) < 3:
+                    raise NicknameTooShortTooLong
                 self.__clients_list.append(client)
                 self.__clients_nicknames_list.append(init_data[0])
                 self.__clients_codes_list.append((e_recived, n_recived))
@@ -127,19 +130,23 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     "User '{}' connected from {}.".format(init_data[0], address))
             except BannedUserIp:
                 client.send(RSA.encrypt_msg_default(
-                    ">BAN<: You are banned at this server.", e_recived, n_recived).encode("utf-8"))
+                    ">BAN<: You are banned at this server. Type '/stop' to close client.", e_recived, n_recived).encode("utf-8"))
                 self._print_system_ban(
                     "Connection from '{}' rejected. Address IP banned.".format(address[0]))
                 client.close()
             except BannedUserNickname:
                 client.send(RSA.encrypt_msg_default(
-                    ">BAN<: Your nickname is banned at this server.", e_recived, n_recived).encode("utf-8"))
+                    ">BAN<: Your nickname is banned at this server. Type '/stop' to close client.", e_recived, n_recived).encode("utf-8"))
                 self._print_system_ban("Connection from '{}' rejected. Nickname '{}' is banned.".format(
                     address[0], init_data[0]))
                 client.close()
             except NicknameAlreadyTaken:
                 client.send(RSA.encrypt_msg_default(
-                    ">ERROR<: This nickname is already taken. Choose another one.", e_recived, n_recived).encode("utf-8"))
+                    ">ERROR<: This nickname is already taken. Choose another one. Type '/stop' to close client.", e_recived, n_recived).encode("utf-8"))
+                client.close()
+            except NicknameTooShortTooLong:
+                client.send(RSA.encrypt_msg_default(
+                    ">ERROR<: Nickname cannot be longer than 24 characters and shorter than 3 characters. Type '/stop' to close client.", e_recived, n_recived).encode("utf-8"))
                 client.close()
             except (ValueError, IndexError, UnboundLocalError):
                 if client and address:
@@ -162,7 +169,9 @@ class ServerConsoleMessanger(ConsoleMessanger):
             try:
                 message = self.__rsa_client.decrypt_msg(
                     client.recv(1024).decode("utf-8"))
-                if len(message) < 1 or len(message) > 100:
+                if len(message) < 1 or len(message) > 128:
+                    self._send_to(
+                        client, ">ERROR<: Your message cannot be longer than 128 characters.")
                     continue
                 if message.startswith("/"):
                     message_command = message.split(" ")
@@ -216,7 +225,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 break
 
     def _send_to(self, to_client, message):
-        if len(message) < 1 or len(message) > 100:
+        if len(message) < 1 or len(message) > 156:
             return
         try:
             e, n = self.__clients_codes_list[self.__clients_list.index(
@@ -229,7 +238,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
             self._close_connection(to_client)
 
     def _broadcast(self, message, skip_client):
-        if len(message) < 1 or len(message) > 100:
+        if len(message) < 1 or len(message) > 156:
             return
         for idx, client in enumerate(self.__clients_list):
             if client is skip_client:
@@ -284,7 +293,9 @@ class ServerConsoleMessanger(ConsoleMessanger):
         self._print_system_command("Server stopped.")
 
     def _command_msg(self, message):
-        if len(message) < 1 or len(message) > 100:
+        if len(message) < 1 or len(message) > 128:
+            self._print_system_error(
+                "Server message cannot be longer than 128 characters.")
             return
         message = ">SERVER<: {}".format(message)
         self._broadcast(message, None)
