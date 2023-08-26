@@ -1,3 +1,4 @@
+import os
 import socket
 import re
 from threading import Thread
@@ -17,6 +18,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
         self.__server_public_key_e = None
         self.__server_public_key_n = None
         self.__running = True
+        self.__quit_by_button = False
 
     def start(self):
         self._clear_console()
@@ -39,11 +41,15 @@ class ClientConsoleMessanger(ConsoleMessanger):
         while self.__running:
             try:
                 message = input()
-                if not self.__running:  # jak rozwiąże problem to git?
+                if not self.__running:
                     break
-                if len(message) == 0:
+                if len(message) < 1:
                     self._print_system_error(
                         "Empty input. Type command or message: (Type /help for more informations)")
+                    continue
+                if len(message) > 128:
+                    self._print_system_error(
+                        "Message cannot be longer than 128 characters.")
                     continue
                 if message.startswith("/"):
                    self._commands(message)
@@ -51,14 +57,15 @@ class ClientConsoleMessanger(ConsoleMessanger):
                 self.__client.send(RSA.encrypt_msg_default(
                     message, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
             except KeyboardInterrupt:
-                self._stop()
+                if not self.__quit_by_button:
+                    self._stop()
                 break
             except:
                 self._print_system_error(
                     "Connection error or internal server error. Stopping client...")
                 self._stop()
                 break
-        exit(0)
+        os._exit(0)
 
     def _receive_messages(self):
         while self.__running:
@@ -67,9 +74,10 @@ class ClientConsoleMessanger(ConsoleMessanger):
                     self.__client.recv(1024).decode("utf-8"))
             except:
                 if self.__running:
-                    self._print_system_error(
-                        "Connection error or internal server error. Stopping client...")
+                    self._print_system_error("Connection terminated.")
                     self._stop()
+                    self.__quit_by_button = True
+                    self._print_system_command("Press enter to exit...")
                 break
             if message == "":
                 continue
@@ -96,8 +104,8 @@ class ClientConsoleMessanger(ConsoleMessanger):
         self.__client.close()
         self._print_system_command("Client stopped.")
 
-    def _commands(self, cmd):
-        match cmd:
+    def _commands(self, command):
+        match command:
             case "/stop":
                 self._stop()
             case "/clear":
@@ -107,7 +115,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
                 self._help()
             case _:
                 self.__client.send(RSA.encrypt_msg_default(
-                    cmd, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
+                    command, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
 
     def _help(self):
         self._print_system_command("\n/stop -> closes application")
