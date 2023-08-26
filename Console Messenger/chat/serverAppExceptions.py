@@ -10,5 +10,9 @@ class NicknameAlreadyTaken(Exception):
     pass
 
 
+class NicknameTooShortTooLong(Exception):
+    pass
+
+
 class UnauthorizedUserAccess(Exception):
     pass
