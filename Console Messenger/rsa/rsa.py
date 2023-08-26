@@ -47,17 +47,17 @@ class RSA():
     def _decrypt_char(self, char):
         return chr(pow(int(char), self.__d) % self.__n)
 
-    def encrypt_msg(self, msg):
-        return_msg = ""
-        for char in msg:
-            return_msg += "{}%$%".format(self._encrypt_char(char))
-        return return_msg
+    def encrypt_msg(self, message):
+        return_message = ""
+        for char in message:
+            return_message += "{}%$%".format(self._encrypt_char(char))
+        return return_message
 
-    def decrypt_msg(self, msg):
-        return_msg = ""
-        for char in msg.split("%$%")[0:-1]:
-            return_msg += self._decrypt_char(char)
-        return return_msg
+    def decrypt_msg(self, message):
+        return_message = ""
+        for char in message.split("%$%")[0:-1]:
+            return_message += self._decrypt_char(char)
+        return return_message
 
     @staticmethod
     def encrypt_char_default(char, e, n):
@@ -66,8 +66,9 @@ class RSA():
         return pow(char, e) % n
 
     @staticmethod
-    def encrypt_msg_default(msg, e, n):
-        return_msg = ""
-        for char in msg:
-            return_msg += "{}%$%".format(RSA.encrypt_char_default(char, e, n))
-        return return_msg
+    def encrypt_msg_default(message, e, n):
+        return_message = ""
+        for char in message:
+            return_message += "{}%$%".format(
+                RSA.encrypt_char_default(char, e, n))
+        return return_message
