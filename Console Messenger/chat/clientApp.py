@@ -121,14 +121,15 @@ class ClientConsoleMessanger(ConsoleMessanger):
         self._print_system_command("\n/stop -> closes application")
         self._print_system_command2("/clear -> clears console")
         self._print_system_command(
+            "/pv [nickname] [message] send a private message to the specified user")
+        self._print_system_command2(
             "/kick [nickname] -> kicks user from server (requires admin permissions)")
-        self._print_system_command2(
+        self._print_system_command(
             "/ban [nickname] -> bans user from server (requires admin permissions)")
-        self._print_system_command(
-            "/unban [nickname] -> unbans user from server (requires admin permissions)")
         self._print_system_command2(
-            "/list u -> prints list of connected users")
-        self._print_system_command(
+            "/unban [nickname] -> unbans user from server (requires admin permissions)")
+        self._print_system_command("/list u -> prints list of connected users")
+        self._print_system_command2(
             "/list a -> prints list of connected users with admin permissions")
-        self._print_system_command2("/list b -> prints list of banned users")
-        self._print_system_command("/help -> prints commands informations\n")
+        self._print_system_command("/list b -> prints list of banned users")
+        self._print_system_command2("/help -> prints commands informations\n")
