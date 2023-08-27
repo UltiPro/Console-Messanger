@@ -84,6 +84,8 @@ Installation:
 
 > /clear -> Clears console.
 
+> /pv [nickname] [message] -> Sends a private message to the specified user.
+
 > /kick [nickname] -> Kicks user from server. (requires admin permissions)
 
 > /ban [nickname] -> Bans user from server. (requires admin permissions)
