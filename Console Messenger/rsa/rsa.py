@@ -1,74 +1,68 @@
-import math
-import random
+import sympy
 
 
 class RSA():
-    def __init__(self, min=11, max=101):
-        if min < 11:
-            min = 11
-        self.__n, self.__phi = self._generate_n_phi(min, max)
-        self.__e = self._generate_e()
-        self.__d = self._generate_d()
+    bit_length = 1024
+    block_size = bit_length // 8
 
-    def _generate_n_phi(self, min, max):
-        numbers = [number for number in range(
-            min, max) if self._is_prime(number)]
-        p = random.choice(numbers)
-        numbers.remove(p)
-        q = random.choice(numbers)
-        return (p * q, (p - 1) * (q - 1))
+    def __init__(self):
+        self.__n, self.__e, self.__d = self._generate_keypair()
 
-    def _is_prime(self, number):
-        for i in range(2, int(math.sqrt(number)) + 1):
-            if number % i == 0:
-                return False
-        return True
+    def _generate_keypair(self):
+        p = sympy.randprime(2**(RSA.bit_length//2), 2 **
+                            (RSA.bit_length//2 + 1))
+        q = sympy.randprime(2**(RSA.bit_length//2), 2 **
+                            (RSA.bit_length//2 + 1))
+        n = p * q
+        phi = (p - 1) * (q - 1)
+        e = sympy.randprime(2, phi)
+        return n, e, sympy.mod_inverse(e, phi)
 
-    def _generate_e(self):
-        e_values = []
-        for i in range(2, self.__phi):
-            if math.gcd(i, self.__phi) == 1:
-                e_values.append(i)
-        return random.choice(e_values)
+    def _mod_exp(self, base, exponent):
+        result = 1
+        base = base % self.__n
+        while exponent > 0:
+            if exponent % 2 == 1:
+                result = (result * base) % self.__n
+            exponent >>= 1
+            base = (base * base) % self.__n
+        return result
 
-    def _generate_d(self):
-        for i in range(2, self.__phi):
-            if (i * self.__e) % self.__phi == 1:
-                return i
+    def _encrypt_block(self, block):
+        return self._mod_exp(int.from_bytes(block.encode('utf-8'), byteorder='big'), self.__e)
+
+    def _decrypt_block(self, encrypted_block):
+        decrypted_num = self._mod_exp(encrypted_block, self.__d)
+        return decrypted_num.to_bytes((decrypted_num.bit_length() + 7) // 8, byteorder='big').decode('utf-8')
+
+    def encrypt_msg(self, message):
+        blocks = [message[i:i+RSA.block_size]
+                  for i in range(0, len(message), RSA.block_size)]
+        return " ".join([str(self._encrypt_block(block)) for block in blocks])
+
+    def decrypt_msg(self, encrypted_message):
+        return ''.join([self._decrypt_block(int(encrypted_block)) for encrypted_block in encrypted_message.split(" ")])
 
     def public_key(self):
         return self.__e, self.__n
 
-    def _encrypt_char(self, char):
-        if type(char) == str:
-            char = ord(char)
-        return pow(char, self.__e) % self.__n
-
-    def _decrypt_char(self, char):
-        return chr(pow(int(char), self.__d) % self.__n)
-
-    def encrypt_msg(self, message):
-        return_message = ""
-        for char in message:
-            return_message += "{}%$%".format(self._encrypt_char(char))
-        return return_message
-
-    def decrypt_msg(self, message):
-        return_message = ""
-        for char in message.split("%$%")[0:-1]:
-            return_message += self._decrypt_char(char)
-        return return_message
+    @staticmethod
+    def mod_exp(base, exponent, modulus):
+        result = 1
+        base = base % modulus
+        while exponent > 0:
+            if exponent % 2 == 1:
+                result = (result * base) % modulus
+            exponent >>= 1
+            base = (base * base) % modulus
+        return result
 
     @staticmethod
-    def encrypt_char_default(char, e, n):
-        if type(char) == str:
-            char = ord(char)
-        return pow(char, e) % n
+    def encrypt_block(block, e, n):
+        return RSA.mod_exp(int.from_bytes(block.encode('utf-8'), byteorder='big'), e, n)
 
     @staticmethod
     def encrypt_msg_default(message, e, n):
-        return_message = ""
-        for char in message:
-            return_message += "{}%$%".format(
-                RSA.encrypt_char_default(char, e, n))
-        return return_message
+        blocks = [message[i:i+RSA.block_size]
+                  for i in range(0, len(message), RSA.block_size)]
+        return " ".join([str(RSA.encrypt_block(block, e, n)) for block in blocks])
