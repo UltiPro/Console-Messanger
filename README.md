@@ -34,13 +34,29 @@ Installation:
 
 ### Commands
 
-> /server-stop -> Stops the server.
+> /stop -> Closes server.
 
-> /server-clear -> Clears the console of messages.
+> /clear -> Clears console.
 
-> /kick [nickname] - > Kicks the user with the given nickname.
+> /msg [message] -> Sends server message to all.
 
-> /help -> Provides information about available commands.
+> /kick [nickname] -> Kicks user from server.
+
+> /admin [nickname] -> Gives user admin permissions.
+
+> /unadmin [nickname] -> Takes off user admin permissions.
+
+> /ban [nickname] -> Bans user from server.
+
+> /unban [nickname] -> Unbans user from server.
+
+> /list u -> Prints list of connected users.
+
+> /list a -> Prints list of connected users with admin permissions.
+
+> /list b -> Prints list of banned users.
+
+> /help -> Prints commands informations.
 
 ## Client Side
 
@@ -64,11 +80,23 @@ Installation:
 
 ### Commands
 
-> /client-stop -> Stops the client.
+> /stop -> Closes application.
 
-> /client-clear -> Clears the console of messages.
+> /clear -> Clears console.
 
-> /help -> Provides information about available commands.
+> /kick [nickname] -> Kicks user from server. (requires admin permissions)
+
+> /ban [nickname] -> Bans user from server. (requires admin permissions)
+
+> /unban [nickname] -> Unbans user from server. (requires admin permissions)
+
+> /list u -> Prints list of connected users.
+
+> /list a -> Prints list of connected users with admin permissions.
+
+> /list b -> Prints list of banned users.
+
+> /help -> Prints commands informations.
 
 # Preview
 
@@ -78,8 +106,16 @@ Installation:
 
 ### Client 1
 
-![Client 1 preview](/screenshots/Client-1.png)
+![Client 1 preview](/screenshots/Client1.png)
 
 ### Client 2
 
-![Client 2 preview](/screenshots/Client-2.png)
+![Client 2 preview](/screenshots/Client2.png)
+
+### Client 3
+
+![Client 3 preview](/screenshots/Client3.png)
+
+### Client 4
+
+![Client 4 preview](/screenshots/Client4.png)
