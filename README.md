@@ -1,17 +1,21 @@
 # Console-Messenger
 Console Messenger created by Patryk 'UltiPro' Wójtowicz using Python and RSA encryption.
 
-Server and client application for communication in the console.
+Server and client application for communication in the console. The application uses the RSA algorithm to encrypt communication. The application has a rich palette of commands available for familiarization below. In addition, information about banned users is saved, admins are not saved due to the lack of authentication in the application, which could result in impersonation of an unconnected admin. Warning! Application tested only on Windows 10!
 
 # Dependencies and Usage
 
 Dependencies:
 
 <ul>
-  <li>colorama</li>
+  <li>colorama 0.4.6</li>
+  <li>mpmath 1.3.0</li>
+  <li>sympy 1.12</li>
 </ul>
 
 Installation:
+
+> cd "/Console Messenger"
 
 > pip install -r requirements.txt
 
