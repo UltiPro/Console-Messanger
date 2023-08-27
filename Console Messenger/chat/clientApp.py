@@ -29,7 +29,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
             self.__client.send("{}$$$${}$$$${}".format(self.__nickname, self.__rsa_client.public_key()[
                                0], self.__rsa_client.public_key()[1]).encode("utf-8"))
             self.__server_public_key_e, self.__server_public_key_n = self.__client.recv(
-                1024).decode("utf-8").split("$$$$")
+                65536).decode("utf-8").split("$$$$")
             self.__server_public_key_e = int(self.__server_public_key_e)
             self.__server_public_key_n = int(self.__server_public_key_n)
         except:
@@ -71,7 +71,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
         while self.__running:
             try:
                 message = self.__rsa_client.decrypt_msg(
-                    self.__client.recv(1024).decode("utf-8"))
+                    self.__client.recv(65536).decode("utf-8"))
             except:
                 if self.__running:
                     self._print_system_error("Connection terminated.")

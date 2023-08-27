@@ -106,7 +106,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
         while self.__running:
             try:
                 client, address = self.__server.accept()
-                init_data = client.recv(1024).decode("utf-8").split("$$$$")
+                init_data = client.recv(65536).decode("utf-8").split("$$$$")
                 e_recived = int(init_data[1])
                 n_recived = int(init_data[2])
                 client.send("{}$$$${}".format(e, n).encode("utf-8"))
@@ -168,7 +168,7 @@ class ServerConsoleMessanger(ConsoleMessanger):
         while self.__running:
             try:
                 message = self.__rsa_client.decrypt_msg(
-                    client.recv(1024).decode("utf-8"))
+                    client.recv(65536).decode("utf-8"))
                 if len(message) < 1 or len(message) > 128:
                     self._send_to(
                         client, ">ERROR<: Your message cannot be longer than 128 characters.")
