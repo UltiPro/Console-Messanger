@@ -124,4 +124,8 @@ Installation:
 
 ### Client 4
 
-![Client 4 preview](/screenshots/Client4.png)
+![Client 4-1 preview](/screenshots/Client4-1.png)
+
+![Client 4-2 preview](/screenshots/Client4-2.png)
+
+![Client 4-3 preview](/screenshots/Client4-3.png)
