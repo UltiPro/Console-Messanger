@@ -1,7 +1,7 @@
 # Console-Messenger
 Console Messenger created by Patryk 'UltiPro' Wójtowicz using Python and RSA encryption.
 
-Server-client application for console communication. The application uses the RSA algorithm to encrypt communication. The application has a rich palette of commands, which you can read below. In addition, information about banned users is saved, administrators are not saved due to the lack of authentication in the application, which could result in impersonating an unconnected administrator. Nicknames shorter than 3 characters and longer than 24 characters are also not allowed. Two or more users cannot have the same nickname. Communication and system errors are also handled, allowing you to use the application smoothly. Warning! Application tested only on Windows 10!
+Server-client application for console communication. The application uses the RSA algorithm (1024 bit length) to encrypt communication. The application has a rich palette of commands, which you can read below. In addition, information about banned users is saved, administrators are not saved due to the lack of authentication in the application, which could result in impersonating an unconnected administrator. Nicknames shorter than 3 characters and longer than 24 characters are not allowed. Two or more users cannot have the same nickname. Communication and system errors are also handled, allowing you to use the application smoothly. Warning! Application tested only on Windows 10!
 
 # Dependencies and Usage
 
