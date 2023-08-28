@@ -130,23 +130,23 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     "User '{}' connected from {}.".format(init_data[0], address))
             except BannedUserIp:
                 client.send(RSA.encrypt_msg_default(
-                    ">BAN<: You are banned at this server. Type '/stop' to close client.", e_recived, n_recived).encode("utf-8"))
+                    ">BAN<: You are banned at this server.", e_recived, n_recived).encode("utf-8"))
                 self._print_system_ban(
                     "Connection from '{}' rejected. Address IP banned.".format(address[0]))
                 client.close()
             except BannedUserNickname:
                 client.send(RSA.encrypt_msg_default(
-                    ">BAN<: Your nickname is banned at this server. Type '/stop' to close client.", e_recived, n_recived).encode("utf-8"))
+                    ">BAN<: Your nickname is banned at this server.", e_recived, n_recived).encode("utf-8"))
                 self._print_system_ban("Connection from '{}' rejected. Nickname '{}' is banned.".format(
                     address[0], init_data[0]))
                 client.close()
             except NicknameAlreadyTaken:
                 client.send(RSA.encrypt_msg_default(
-                    ">ERROR<: This nickname is already taken. Choose another one. Type '/stop' to close client.", e_recived, n_recived).encode("utf-8"))
+                    ">ERROR<: This nickname is already taken. Choose another one.", e_recived, n_recived).encode("utf-8"))
                 client.close()
             except NicknameTooShortTooLong:
                 client.send(RSA.encrypt_msg_default(
-                    ">ERROR<: Nickname cannot be longer than 24 characters and shorter than 3 characters. Type '/stop' to close client.", e_recived, n_recived).encode("utf-8"))
+                    ">ERROR<: Nickname cannot be longer than 24 characters and shorter than 3 characters.", e_recived, n_recived).encode("utf-8"))
                 client.close()
             except (ValueError, IndexError, UnboundLocalError):
                 if client and address:
