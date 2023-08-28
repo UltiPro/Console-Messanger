@@ -108,24 +108,24 @@ Installation:
 
 ### Server
 
-![Server preview](/screenshots/Server.png)
+![Server preview](/screenshots/Server2.png)
 
 ### Client 1
 
-![Client 1 preview](/screenshots/Client1.png)
+![Client 1 preview](/screenshots/Client12.png)
 
 ### Client 2
 
-![Client 2 preview](/screenshots/Client2.png)
+![Client 2 preview](/screenshots/Client22.png)
 
 ### Client 3
 
-![Client 3 preview](/screenshots/Client3.png)
+![Client 3 preview](/screenshots/Client32.png)
 
 ### Client 4
 
-![Client 4-1 preview](/screenshots/Client4-1.png)
+![Client 4-1 preview](/screenshots/Client4-12.png)
 
-![Client 4-2 preview](/screenshots/Client4-2.png)
+![Client 4-2 preview](/screenshots/Client4-22.png)
 
-![Client 4-3 preview](/screenshots/Client4-3.png)
+![Client 4-3 preview](/screenshots/Client4-32.png)
