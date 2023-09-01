@@ -36,7 +36,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
             self._print_system_error(
                 "Connection error or internal server error. Stopping client...")
             return
-        self.__receive_messages_thread = Thread(target=self._receive_messages)
+        self.__receive_messages_thread = Thread(target=self.__receive_messages)
         self.__receive_messages_thread.start()
         while self.__running:
             try:
@@ -52,22 +52,22 @@ class ClientConsoleMessanger(ConsoleMessanger):
                         "Message cannot be longer than 128 characters.")
                     continue
                 if message.startswith("/"):
-                   self._commands(message)
+                   self.__commands(message)
                    continue
                 self.__client.send(RSA.encrypt_msg_default(
                     message, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
             except KeyboardInterrupt:
                 if not self.__quit_by_button:
-                    self._stop()
+                    self.__stop()
                 break
             except:
                 self._print_system_error(
                     "Connection error or internal server error. Stopping client...")
-                self._stop()
+                self.__stop()
                 break
         os._exit(0)
 
-    def _receive_messages(self):
+    def __receive_messages(self):
         while self.__running:
             try:
                 message = self.__rsa_client.decrypt_msg(
@@ -75,7 +75,7 @@ class ClientConsoleMessanger(ConsoleMessanger):
             except:
                 if self.__running:
                     self._print_system_error("Connection terminated.")
-                    self._stop()
+                    self.__stop()
                     self.__quit_by_button = True
                     self._print_system_command("Press enter to exit...")
                 break
@@ -98,26 +98,26 @@ class ClientConsoleMessanger(ConsoleMessanger):
             else:
                 print(message)
 
-    def _stop(self):
+    def __stop(self):
         self._print_system_command("Stopping the client...")
         self.__running = False
         self.__client.close()
         self._print_system_command("Client stopped.")
 
-    def _commands(self, command):
+    def __commands(self, command):
         match command:
             case "/stop":
-                self._stop()
+                self.__stop()
             case "/clear":
                 self._clear_console()
                 self._print_system_command("Console cleared...")
             case "/help":
-                self._help()
+                self.__help()
             case _:
                 self.__client.send(RSA.encrypt_msg_default(
                     command, self.__server_public_key_e, self.__server_public_key_n).encode("utf-8"))
 
-    def _help(self):
+    def __help(self):
         self._print_system_command("\n/stop -> closes application")
         self._print_system_command2("/clear -> clears console")
         self._print_system_command(
