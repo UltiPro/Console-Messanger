@@ -128,25 +128,25 @@ class ServerConsoleMessanger(ConsoleMessanger):
                     ">INFO<: User {} has join the chat.".format(init_data[0]), client)
                 self._print_system_information(
                     "User '{}' connected from {}.".format(init_data[0], address))
-            except BannedUserIp:
+            except BannedUserIp as exception:
                 client.send(RSA.encrypt_msg_default(
-                    ">BAN<: You are banned at this server.", e_recived, n_recived).encode("utf-8"))
+                    exception.get_message(), e_recived, n_recived).encode("utf-8"))
                 self._print_system_ban(
                     "Connection from '{}' rejected. Address IP banned.".format(address[0]))
                 client.close()
-            except BannedUserNickname:
+            except BannedUserNickname as exception:
                 client.send(RSA.encrypt_msg_default(
-                    ">BAN<: Your nickname is banned at this server.", e_recived, n_recived).encode("utf-8"))
+                    exception.get_message(), e_recived, n_recived).encode("utf-8"))
                 self._print_system_ban("Connection from '{}' rejected. Nickname '{}' is banned.".format(
                     address[0], init_data[0]))
                 client.close()
-            except NicknameAlreadyTaken:
+            except NicknameAlreadyTaken as exception:
                 client.send(RSA.encrypt_msg_default(
-                    ">ERROR<: This nickname is already taken. Choose another one.", e_recived, n_recived).encode("utf-8"))
+                    exception.get_message(), e_recived, n_recived).encode("utf-8"))
                 client.close()
-            except NicknameTooShortTooLong:
+            except NicknameTooShortTooLong as exception:
                 client.send(RSA.encrypt_msg_default(
-                    ">ERROR<: Nickname cannot be longer than 24 characters and shorter than 3 characters.", e_recived, n_recived).encode("utf-8"))
+                    exception.get_message(), e_recived, n_recived).encode("utf-8"))
                 client.close()
             except (ValueError, IndexError, UnboundLocalError):
                 if client and address:
@@ -212,9 +212,8 @@ class ServerConsoleMessanger(ConsoleMessanger):
                 else:
                     self.__broadcast("<{}>: {}".format(
                         nickname, message), None)
-            except UnauthorizedUserAccess:
-                self.__send_to(
-                    client, ">ERROR<: This command requires admin permissions.")
+            except UnauthorizedUserAccess as exception:
+                self.__send_to(client, exception.get_message())
             except IndexError:
                 self.__send_to(
                     client, ">ERROR<: This command requires parameter. Try again.")
